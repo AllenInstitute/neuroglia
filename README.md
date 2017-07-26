@@ -78,6 +78,9 @@ found_spikes = spike_finder.transform(calcium)
 
 ### Requirements
 
+## Level of Support
+We are planning on occasional updating this tool with no fixed schedule. Community involvement is encouraged through both issues and pull requests.  Please make pull requests against the dev branch, as we will test changes there before merging into master.
+
 ## License
 
 ## Authors
