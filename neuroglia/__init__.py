@@ -4,6 +4,7 @@ __version__ = '0.1.0'
 __author__ = 'Justin Kiggins <justink@alleninstitute.org>'
 __all__ = []
 
-from spike import *
-from trace import *
-from tensor import *
+from .spike import *
+from .trace import *
+from .tensor import *
+from .nwb import *
