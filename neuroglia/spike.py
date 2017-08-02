@@ -60,11 +60,13 @@ class GaussianSmoother(TransformerMixin):
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
-        norm_factor = self.tau * np.sqrt(2. * np.pi)
 
         def do_convolve(t):
             # NOTE: this builds a matrix of shape (len(self.neurons), len(self.bins))
             # it computes the gaussian based on the distance between each spike and each time bin
+            # borrowed from @marvint
+            # https://gist.github.com/MarvinT/c37cd01f55c07adaa6a2ad51b785c18b
+            norm_factor = self.tau * np.sqrt(2. * np.pi)
             x = -(neuron_spikes['time'].values.reshape((-1, 1)) - t.reshape((1,-1))) ** 2
             x = np.exp(x / (2 * (self.tau**2)))
             x = np.sum(x, 0)
