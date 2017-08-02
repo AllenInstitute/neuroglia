@@ -56,7 +56,7 @@ class Smoother(TransformerMixin):
             'exponential': stats.expon,
             'boxcar': stats.uniform,
         }
-        self.kernel_func = KERNELS[kernel]
+        self.kernel_func = lambda spike: KERNELS[kernel](loc=spike,scale=self.tau)
         self.tau = tau
 
     def fit(self, X, y=None):
@@ -68,9 +68,8 @@ class Smoother(TransformerMixin):
 
         data = (
             neuron_spikes['time']
-            .map(lambda x: self.kernel_func(loc=x,scale=self.tau))
-            .map(lambda rv: rv.pdf(self.bins))
-            .sum()
+            .map(lambda t: self.kernel_func(t).pdf(self.bins)) # creates kernel function for each spike and applies to the time bins
+            .sum() # and adds them together
         )
 
         return pd.Series(
