@@ -9,7 +9,7 @@ setuptools.setup(
     author_email="justink@alleninstitute.org",
 
     description="pipelines for transformations for neurophysiology data",
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
 
     packages=setuptools.find_packages(),
 
