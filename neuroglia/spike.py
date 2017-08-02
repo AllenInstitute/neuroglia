@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy import stats
 from sklearn.base import TransformerMixin
 from neuroglia.core import BaseTensorizer
 
@@ -44,13 +45,18 @@ class Binarizer(TransformerMixin):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         return traces
 
-
-class GaussianSmoother(TransformerMixin):
+class Smoother(TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,bins,range=None,tau=0.005):
-        super(GaussianSmoother, self).__init__()
+    def __init__(self,bins,range=None,kernel='gaussian',tau=0.005):
+        super(Smoother, self).__init__()
         self.bins = bins
         self.range = range
+        KERNELS = {
+            'gaussian': stats.norm,
+            'exponential': stats.expon,
+            'boxcar': stats.uniform,
+        }
+        self.kernel_func = KERNELS[kernel]
         self.tau = tau
 
     def fit(self, X, y=None):
@@ -60,20 +66,15 @@ class GaussianSmoother(TransformerMixin):
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
-
-        def do_convolve(t):
-            # NOTE: this builds a matrix of shape (len(self.neurons), len(self.bins))
-            # it computes the gaussian based on the distance between each spike and each time bin
-            # borrowed from @marvint
-            # https://gist.github.com/MarvinT/c37cd01f55c07adaa6a2ad51b785c18b
-            norm_factor = self.tau * np.sqrt(2. * np.pi)
-            x = -(neuron_spikes['time'].values.reshape((-1, 1)) - t.reshape((1,-1))) ** 2
-            x = np.exp(x / (2 * (self.tau**2)))
-            x = np.sum(x, 0)
-            return x / norm_factor
+        data = (
+            neuron_spikes['time']
+            .map(lambda x: self.kernel_func(loc=x,scale=self.tau))
+            .map(lambda rv: rv.pdf(self.bins))
+            .sum()
+        )
 
         return pd.Series(
-            data=do_convolve(self.bins),
+            data=data,
             index=self.bins,
             name=neuron,
             )
