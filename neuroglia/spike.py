@@ -45,18 +45,19 @@ class Binarizer(TransformerMixin):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         return traces
 
+KERNELS = {
+    'gaussian': stats.norm,
+    'exponential': stats.expon,
+    'boxcar': stats.uniform,
+}
+
 class Smoother(TransformerMixin):
     """docstring for Smoother."""
     def __init__(self,bins,range=None,kernel='gaussian',tau=0.005):
         super(Smoother, self).__init__()
         self.bins = bins
         self.range = range
-        KERNELS = {
-            'gaussian': stats.norm,
-            'exponential': stats.expon,
-            'boxcar': stats.uniform,
-        }
-        self.kernel_func = lambda spike: KERNELS[kernel](loc=spike,scale=self.tau)
+        self.kernel = kernel
         self.tau = tau
 
     def fit(self, X, y=None):
@@ -66,15 +67,19 @@ class Smoother(TransformerMixin):
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
+        kernel_func = lambda spike: KERNELS[self.kernel](loc=spike,scale=self.tau)
+
         data = (
             neuron_spikes['time']
-            .map(lambda t: self.kernel_func(t).pdf(self.bins)) # creates kernel function for each spike and applies to the time bins
+            .map(lambda t: kernel_func(t).pdf(self.bins)) # creates kernel function for each spike and applies to the time bins
             .sum() # and adds them together
         )
 
+        data = np.multiply(data[:-1],np.diff(self.bins))
+
         return pd.Series(
             data=data,
-            index=self.bins,
+            index=self.bins[:-1],
             name=neuron,
             )
 
