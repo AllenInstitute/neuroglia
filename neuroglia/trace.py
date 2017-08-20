@@ -1,44 +1,56 @@
 import numpy as np
+from scipy import interpolate
+import pandas as pd
+import xarray as xr
 from neuroglia.core import BaseTensorizer
-
-def align(trace_series,time_bins):
-    t = trace_series.index
-
-    return
 
 
 class TraceTensorizer(BaseTensorizer):
     """docstring for SpikeTensorizer."""
-    def __init__(self, events, window, alignment=None):
-        super(TraceTensorizer, self).__init__(events,window)
+    def __init__(self, events, **hist_kwargs):
+        super(TraceTensorizer, self).__init__(events,**hist_kwargs)
 
     def fit(self, X, y=None):
-        tres = X.index[1]-X.index[0]
-        nbins = int(np.round((self.window[1]-self.window[0])/tres))
-        self.target_shape = len(self.events), nbins, len(X.columns),
+        self.target_shape = len(self.events), len(self.bins), len(X.columns),
         dtypes = X.dtypes.unique()
         assert len(dtypes)==1
         self.target_dtype = dtypes[0]
-        # 
-        # if alignment is None:
-        #     if self.target_dtype == np.int_:
-        #         self.alignment = 'nearest'
-        #     else:
-        #         self.alignment = 'cubic_spline'
-        # else:
-        #     self.alignment = alignment
 
+        self.splines = X.apply(
+            lambda y: interpolate.InterpolatedUnivariateSpline(X.index, y),
+            axis=0,
+        )
         return self
 
     def transform(self, X):
-        tensor = np.empty(self.target_shape,self.target_dtype)
-        for ii, (_,ev) in enumerate(self.events.iterrows()):
-            # assert X.index.contains(ev['time'])
 
-            assert np.isclose(X.index, ev['time'], atol=0.001).any() # need to determine approach if events are not aligned... interpolate? align events to nearest bin?
-            mask = (
-                (X.index >= ev['time']+self.window[0]) # replace with searchsorted
-                & (X.index < ev['time']+self.window[1])
+        # define a local function that will extract traces around each event
+        def extractor(ev):
+            bins = self.bins + ev['time']
+            interpolated = self.splines.apply(
+                lambda s: pd.Series(s(bins),index=self.bins)
                 )
-            tensor[ii,:,:] = X[mask].values
-        return tensor
+            return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
+        
+        # do the extraction
+        tensor = [extractor(ev) for _,ev in self.events.iterrows()]
+        
+        # builds the event dataframe into coords for xarray
+        coords = (
+            self.events
+            .reset_index()
+            .to_dict(orient='list')
+            )
+        coords = {k:('event',v) for k,v in coords.items()}
+
+        # define a DataArray that will describe the event dimension
+        concat_dim = xr.DataArray(
+            self.events.index,
+            name='event',
+            dims=['event'],
+            coords=coords,
+            )
+        
+        # concatenate the DataArrays into a single DataArray
+        return xr.concat(tensor,dim=concat_dim)
+        
