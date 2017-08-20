@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy import stats
 from sklearn.base import TransformerMixin
 from neuroglia.core import BaseTensorizer
 
@@ -44,13 +45,19 @@ class Binarizer(TransformerMixin):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         return traces
 
+KERNELS = {
+    'gaussian': stats.norm,
+    'exponential': stats.expon,
+    'boxcar': stats.uniform,
+}
 
-class GaussianSmoother(TransformerMixin):
+class Smoother(TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,bins,range=None,tau=0.005):
-        super(GaussianSmoother, self).__init__()
+    def __init__(self,bins,range=None,kernel='gaussian',tau=0.005):
+        super(Smoother, self).__init__()
         self.bins = bins
         self.range = range
+        self.kernel = kernel
         self.tau = tau
 
     def fit(self, X, y=None):
@@ -60,19 +67,19 @@ class GaussianSmoother(TransformerMixin):
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
-        norm_factor = self.tau * np.sqrt(2. * np.pi)
+        kernel_func = lambda spike: KERNELS[self.kernel](loc=spike,scale=self.tau)
 
-        def do_convolve(t):
-            # NOTE: this builds a matrix of shape (len(self.neurons), len(self.bins))
-            # it computes the gaussian based on the distance between each spike and each time bin
-            x = -(neuron_spikes['time'].values.reshape((-1, 1)) - t.reshape((1,-1))) ** 2
-            x = np.exp(x / (2 * (self.tau**2)))
-            x = np.sum(x, 0)
-            return x / norm_factor
+        data = (
+            neuron_spikes['time']
+            .map(lambda t: kernel_func(t).pdf(self.bins)) # creates kernel function for each spike and applies to the time bins
+            .sum() # and adds them together
+        )
+
+        data = np.multiply(data[:-1],np.diff(self.bins))
 
         return pd.Series(
-            data=do_convolve(self.bins),
-            index=self.bins,
+            data=data,
+            index=self.bins[:-1],
             name=neuron,
             )
 
