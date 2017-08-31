@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import xarray as xr
 from scipy import stats
 from sklearn.base import TransformerMixin
 from neuroglia.core import BaseTensorizer
@@ -51,9 +52,11 @@ KERNELS = {
     'boxcar': stats.uniform,
 }
 
+DEFAULT_TAU = 0.005
+
 class Smoother(TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,bins,range=None,kernel='gaussian',tau=0.005):
+    def __init__(self,bins,range=None,kernel='gaussian',tau=DEFAULT_TAU):
         super(Smoother, self).__init__()
         self.bins = bins
         self.range = range
@@ -101,28 +104,41 @@ def calc_n_bins(window,binsize):
 
 class SpikeTensorizer(BaseTensorizer):
     """docstring for SpikeTensorizer."""
-    def __init__(self, events, window, binsize, **binarizer_kwargs):
-        super(SpikeTensorizer, self).__init__(events, window)
-        self.binsize = binsize
-        self.binarizer_kwargs = binarizer_kwargs
+    def __init__(self, events, bins, range=None, tracizer=None, tracizer_kwargs=None):
+        super(SpikeTensorizer, self).__init__(events, bins, range)
+
+        if tracizer_kwargs is None:
+            tracizer_kwargs = dict()
+
+        if tracizer is None:
+            tracizer = Smoother
+
+        self.Tracizer = tracizer
+        self.tracizer_kwargs = tracizer_kwargs
 
     def fit(self, X, y=None):
-        nbins = calc_n_bins(self.window,self.binsize)
-        self.neurons = X.keys()
-        self.target_shape = len(self.events), nbins, len(self.neurons),
-        self.target_dtype = np.float_
         return self
 
     def transform(self, X):
-        tensor = np.empty(self.target_shape,self.target_dtype)
-        for ii,(_,ev) in enumerate(self.events.iterrows()):
-            min_time,max_time = [t + ev['time'] for t in self.window]
-            binarizer = Binarizer(
-                binsize=self.binsize,
-                min_time=min_time,
-                max_time=max_time,
-                **self.binarizer_kwargs,
-                )
-            binned = binarizer.fit_transform(align_spikes(X,ev['time']))
-            tensor[ii,:,:] = binned.values
-        return tensor
+
+        def extractor(ev):
+            bins = self.bins + ev['time']
+
+            start = bins[0] - 10*DEFAULT_TAU, 
+            stop = bins[-1] + 10*DEFAULT_TAU
+
+            local_mask = (
+                (X['time']>start) & (X['time']<stop) # TODO: replace with np.search_sorted to speed up this query
+            )
+            X_local = X[local_mask]
+            
+            tracizer = self.Tracizer(bins,**self.tracizer_kwargs)
+            traces = tracizer.fit_transform(X_local)
+            traces.index = self.bins[:-1]
+
+            return xr.DataArray(traces,dims=['time_from_event','neuron'])
+
+        tensor = [extractor(ev) for _,ev in self.events.iterrows()]
+        
+        return xr.concat(tensor,dim=self.concat_dim)
+

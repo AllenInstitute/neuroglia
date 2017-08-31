@@ -2,7 +2,8 @@ import pandas as pd
 from sklearn.base import TransformerMixin
 
 class SpikeTablizer(TransformerMixin):
-    """Binarize a population of spike events into an array of spike counts.
+    """converts a dictionary of spike times in the form of neuron:[times] to a
+    dataframe with "neuron" and "time" columns, sorted by "time"
 
     """
     def __init__(self):
