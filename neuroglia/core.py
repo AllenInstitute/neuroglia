@@ -4,7 +4,7 @@ from sklearn.base import TransformerMixin
 
 class BaseTensorizer(TransformerMixin):
     """docstring for SpikeTensorizer."""
-    def __init__(self, events, bins, range):
+    def __init__(self, events, bins, range=None):
         super(BaseTensorizer, self).__init__()
         self.events = events
         _, bins = np.histogram([],bins,range)
@@ -13,7 +13,6 @@ class BaseTensorizer(TransformerMixin):
         # builds the event dataframe into coords for xarray
         coords = (
             self.events
-            .reset_index()
             .to_dict(orient='list')
             )
         coords = {k:('event',v) for k,v in coords.items()}
