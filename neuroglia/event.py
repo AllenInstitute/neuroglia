@@ -1,9 +1,9 @@
 import numpy as np
-from sklearn.base import TransformerMixin
+from sklearn.base import BaseEstimator,TransformerMixin
 
 from .trace import TraceTensorizer
 
-class MeanResponseExtractor(TransformerMixin):
+class MeanResponseExtractor(BaseEstimator,TransformerMixin):
     """docstring for Annotator."""
     def __init__(self, traces,bins,range):
         super(MeanResponseExtractor, self).__init__()
