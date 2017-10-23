@@ -1,0 +1,1 @@
+py.test --cov=neuroglia --cov-report html --cov-report term
