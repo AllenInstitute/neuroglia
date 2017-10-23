@@ -3,6 +3,7 @@ from sklearn.base import TransformerMixin
 from oasis.functions import deconvolve
 from scipy.signal import medfilt, savgol_filter
 
+
 class MedianFilterDetrend(TransformerMixin):
     """
     Median filter detrending
@@ -28,9 +29,37 @@ class MedianFilterDetrend(TransformerMixin):
     def transform(self,X):
         X_new = X.copy()
         for col in X.columns:
-            mf = medfilt(X[col].values.astype(np.double), self.window)
+            tmp_data = X[col].values.astype(np.double)
+            mf = medfilt(tmp_data, self.window)
             mf = np.minimum(mf, self.peak_std_threshold * self.robust_std(mf))
-            X_new[col] = X[col].values.astype(np.double) - mf
+            self.fit_params[col] = dict(mf=mf)
+            X_new[col] = tmp_data - mf
+
+        return X_new
+
+
+class SavGolFilterDetrend(TransformerMixin):
+    """
+    Savitzky-Golay filter detrending
+    """
+    def __init__(self,
+        window=101,
+        order=5)
+
+        self.window = window
+        self.order = order
+
+    def fit(self, X, y=None):
+        self.fit_params = {}
+        return self
+
+    def transform(self,X):
+        X_new = X.copy()
+        for col in X.columns:
+            tmp_data = X[col].values.astype(np.double)
+            sgf = savgol_filter(tmp_data, self.window, self.order)
+            self.fit_params[col] = dict(sgf=sgf)
+            X_new[col] = tmp_data - sgf
 
         return X_new
 
