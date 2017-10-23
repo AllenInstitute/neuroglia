@@ -38,26 +38,6 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
         # concatenate the DataArrays into a single DataArray
         return xr.concat(tensor,dim=concat_dim)
 
-class MeanResponseExtractor(BaseEstimator,TransformerMixin):
-    """docstring for Annotator."""
-    def __init__(self, traces,bins,range):
-        super(MeanResponseExtractor, self).__init__()
-        self.traces = traces
-        self.bins = bins
-        self.range = range
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-
-        tensorizer = EventTraceTensorizer(
-            traces=self.traces,
-            bins=self.bins,
-            range=self.range,
-            )
-        tensor = tensorizer.fit_transform(X)
-        return tensor.mean(dim='time').data
 
 class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventSpikeTensorizer."""
