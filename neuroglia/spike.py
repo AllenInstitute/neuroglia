@@ -3,7 +3,6 @@ import pandas as pd
 import xarray as xr
 from scipy import stats
 from sklearn.base import TransformerMixin
-from neuroglia.core import BaseTensorizer
 
 
 def get_neuron(neuron_spikes):

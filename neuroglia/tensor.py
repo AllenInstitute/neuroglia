@@ -1,13 +1,13 @@
-from sklearn.base import TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin
 
 class ResponseExtractor(BaseEstimator,TransformerMixin):
     """docstring for Annotator."""
     def __init__(self, method='mean', dim='time'):
         super(ResponseExtractor, self).__init__()
 
-        if method = 'mean':
+        if method == 'mean':
             self.method = np.mean
-        elif method = 'max':
+        elif method == 'max':
             self.method = np.max
         else:
             self.method = method
