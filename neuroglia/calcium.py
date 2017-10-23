@@ -10,7 +10,7 @@ class MedianFilterDetrend(TransformerMixin):
     """
     def __init__(self,
         window=101,
-        peak_std_threshold=4)
+        peak_std_threshold=4):
 
         self.window = window
         self.peak_std_threshold = peak_std_threshold
@@ -44,7 +44,7 @@ class SavGolFilterDetrend(TransformerMixin):
     """
     def __init__(self,
         window=101,
-        order=5)
+        order=5):
 
         self.window = window
         self.order = order
