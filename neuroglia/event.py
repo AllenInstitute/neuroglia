@@ -1,14 +1,16 @@
 import numpy as np
+import pandas as pd
+import xarray as xr
+
 from sklearn.base import BaseEstimator,TransformerMixin
 
-from .trace import TraceTensorizer
-from .utils import create_interpolator
-
+from .utils import create_interpolator, events_to_xr_dim
+from .spike import Smoother
 
 class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
-    def __init__(self, traces, bins, range):
-        super(EventSpikeTensorizer, self).__init__()
+    def __init__(self, traces, bins, range=None):
+        super(EventTraceTensorizer, self).__init__()
         self.traces = traces
         self.bins = bins
         self.range = range
@@ -41,9 +43,9 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
 class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventSpikeTensorizer."""
-    def __init__(self, spikes, bins, range):
+    def __init__(self, spikes, bins, range=None,tracizer=None,tracizer_kwargs=None):
         super(EventSpikeTensorizer, self).__init__()
-        self.spikes = traces
+        self.spikes = spikes
         self.bins = bins
         self.range = range
 
