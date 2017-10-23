@@ -18,4 +18,6 @@ class SpikeTablizer(TransformerMixin):
             for t in times:
                 population['neuron'].append(n)
                 population['time'].append(t)
-        return pd.DataFrame(population).sort_values('time')
+        df = pd.DataFrame(population).sort_values('time')
+        df.set_index(['time'], inplace=True)
+        return df
