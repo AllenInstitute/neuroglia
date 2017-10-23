@@ -9,7 +9,7 @@ class SpikeTablizer(TransformerMixin):
     def __init__(self):
         super(SpikeTablizer, self).__init__()
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):       # pragma: no cover
         return self
 
     def transform(self, X):
