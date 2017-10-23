@@ -3,7 +3,6 @@ import pandas as pd
 import xarray as xr
 from scipy import stats
 from sklearn.base import TransformerMixin
-from neuroglia.core import BaseTensorizer
 
 
 def get_neuron(neuron_spikes):
@@ -89,56 +88,3 @@ class Smoother(TransformerMixin):
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         return traces
-
-def align_spikes(spikes,time):
-    aligned = {}
-    for k,v in spikes.items():
-        try:
-            aligned[k] = v - time
-        except TypeError:
-            aligned[k] = [vv-time for vv in v]
-    return aligned
-
-def calc_n_bins(window,binsize):
-    return int(np.round((window[1]-window[0])/binsize))-1
-
-class SpikeTensorizer(BaseTensorizer):
-    """docstring for SpikeTensorizer."""
-    def __init__(self, events, bins, range=None, tracizer=None, tracizer_kwargs=None):
-        super(SpikeTensorizer, self).__init__(events, bins, range)
-
-        if tracizer_kwargs is None:
-            tracizer_kwargs = dict()
-
-        if tracizer is None:
-            tracizer = Smoother
-
-        self.Tracizer = tracizer
-        self.tracizer_kwargs = tracizer_kwargs
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-
-        def extractor(ev):
-            bins = self.bins + ev['time']
-
-            start = bins[0] - 10*DEFAULT_TAU, 
-            stop = bins[-1] + 10*DEFAULT_TAU
-
-            local_mask = (
-                (X['time']>start) & (X['time']<stop) # TODO: replace with np.search_sorted to speed up this query
-            )
-            X_local = X[local_mask]
-            
-            tracizer = self.Tracizer(bins,**self.tracizer_kwargs)
-            traces = tracizer.fit_transform(X_local)
-            traces.index = self.bins[:-1]
-
-            return xr.DataArray(traces,dims=['time_from_event','neuron'])
-
-        tensor = [extractor(ev) for _,ev in self.events.iterrows()]
-        
-        return xr.concat(tensor,dim=self.concat_dim)
-
