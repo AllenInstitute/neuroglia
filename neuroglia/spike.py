@@ -38,7 +38,7 @@ class Binarizer(TransformerMixin):
         hist_kwargs.update(bins=self.time_bins)
         trace, bins = np.histogram(
             neuron_spikes['time'],
-            **hist_kwargs,
+            **hist_kwargs
             )
         return pd.Series(data=trace,index=bins[:-1],name=neuron)
 
