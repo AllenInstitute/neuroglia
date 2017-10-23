@@ -16,7 +16,7 @@ def events_to_xr_dim(events,dim='event'):
 
 class BaseTensorizer(TransformerMixin):
     """docstring for SpikeTensorizer."""
-    def __init__(self, events, bins, range):
+    def __init__(self, events, bins, range=None):
         super(BaseTensorizer, self).__init__()
         self.events = events
         _, bins = np.histogram([],bins,range)
