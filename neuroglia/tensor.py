@@ -1,11 +1,5 @@
 from sklearn.base import TransformerMixin
 
-class Raveller(TransformerMixin):
-    """docstring for Raveller."""
-    def __init__(self, arg):
-        super(Raveller, self).__init__()
-        self.arg = arg
-
 class ResponseExtractor(BaseEstimator,TransformerMixin):
     """docstring for Annotator."""
     def __init__(self, method='mean', dim='time'):
@@ -23,5 +17,4 @@ class ResponseExtractor(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self, X):
-
         return X.mean(dim=self.dim).data

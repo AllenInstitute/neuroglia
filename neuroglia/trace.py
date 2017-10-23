@@ -30,12 +30,10 @@ class TraceTensorizer(BaseTensorizer):
                 lambda s: pd.Series(s(bins),index=self.bins)
                 )
             return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
-        
-        
+
         # do the extraction
         tensor = [extractor(ev) for _,ev in self.events.iterrows()]
-        
-        
+
+
         # concatenate the DataArrays into a single DataArray
         return xr.concat(tensor,dim=self.concat_dim)
-        
