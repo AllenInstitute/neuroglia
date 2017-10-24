@@ -74,7 +74,7 @@ class OASISInferer(TransformerMixin):
         b_nonneg=True,
         optimize_g=0,
         penalty=0,
-        **kwargs,
+        **kwargs
         ):
         super(OASISInferer, self).__init__()
 
