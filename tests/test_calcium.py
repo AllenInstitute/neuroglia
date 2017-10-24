@@ -32,6 +32,8 @@ def test_SavGolFilterDetrend():
 def test_OASISInferer():
     tmp = OASISInferer().fit_transform(SavGolFilterDetrend().fit_transform(DFF))
     assert np.all(np.array([np.corrcoef(true_s[n], np.array(tmp[a]))[0][1] for n,a in zip(range(3), LBL)]) > 0.6)
+    tmp = OASISInferer().fit_transform(MedianFilterDetrend().fit_transform(DFF))
+    assert np.all(np.array([np.corrcoef(true_s[n], np.array(tmp[a]))[0][1] for n,a in zip(range(3), LBL)]) > 0.6)
 
 
 if __name__ == '__main__':
