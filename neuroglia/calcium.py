@@ -43,8 +43,8 @@ class SavGolFilterDetrend(TransformerMixin):
     Savitzky-Golay filter detrending
     """
     def __init__(self,
-        window=101,
-        order=5):
+        window=201,
+        order=3):
 
         self.window = window
         self.order = order
