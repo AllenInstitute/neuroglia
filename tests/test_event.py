@@ -1,17 +1,17 @@
 import pandas as pd
 import xarray as xr
 
+import numpy.testing as npt
 import xarray.testing as xrt
 
 from neuroglia.event import EventTraceTensorizer, EventSpikeTensorizer
 
 import numpy as np
 
+# create fake event data
 TIME = [0.1, 0.2, 0.5]
 LBL = ['a', 'b', 'b']
-
 EVENTS = pd.DataFrame(dict(time=TIME, lbl=LBL))
-
 CONCAT_DIM = xr.DataArray(
     range(3),
     name='event',
@@ -23,18 +23,33 @@ CONCAT_DIM = xr.DataArray(
     }
 )
 
+# create fake calcium data
 TIME = np.arange(0, 100, 1/30.)
 NEURON = [0, 1, 2]
 data = np.random.randn(len(TIME), 3)
+DFF = pd.DataFrame(data, TIME, NEURON)
 
-DFF = pd.DataFrame(data, TIME, LBL)
+# create fake spike data
+SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,1.6]})
 
+# create bins attribute
 BINS  = np.arange(0,1,0.01)
 
-SPIKES = pd.DataFrame({'neurons':[0,0,1],'time':[0.01,0.2,1.6]})
 
 def test_EventTraceTensorizer_dims():
-    tensor = EventTraceTensorizer(DFF,bins=BINS)
+    tensorizer = EventTraceTensorizer(DFF,bins=BINS)
+    tensor = tensorizer.fit_transform(EVENTS)
+    print(tensor)
+
+    npt.assert_equal(tensor['neuron'].data,NEURON)
+    npt.assert_equal(tensor['time_from_event'].data,BINS)
+    npt.assert_equal(tensor['lbl'].data,LBL)
 
 def test_EventSpikeTensorizer():
-    tensor = EventSpikeTensorizer(SPIKES,bins=BINS)
+    tensorizer = EventSpikeTensorizer(SPIKES,bins=BINS)
+    tensor = tensorizer.fit_transform(EVENTS)
+    print(tensor)
+
+    npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())
+    npt.assert_equal(tensor['time_from_event'].data,BINS)
+    npt.assert_equal(tensor['lbl'].data,LBL)
