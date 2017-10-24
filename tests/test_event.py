@@ -53,3 +53,11 @@ def test_EventSpikeTensorizer():
     npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())
     npt.assert_equal(tensor['time_from_event'].data,BINS[:-1])
     npt.assert_equal(tensor['lbl'].data,LBL)
+
+
+def test_EventSpikeTensorizer_no_response():
+
+    spikes = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,1.6]})
+
+    tensorizer = EventSpikeTensorizer(spikes,bins=BINS)
+    tensor = tensorizer.fit_transform(EVENTS)
