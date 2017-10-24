@@ -1,16 +1,18 @@
 import numpy as np
+import pandas as pd
+import xarray as xr
+
 from sklearn.base import BaseEstimator,TransformerMixin
 
-from .trace import TraceTensorizer
-from .utils import create_interpolator
-
+from .utils import create_interpolator, events_to_xr_dim
+from .spike import Smoother, DEFAULT_TAU
 
 class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
-    def __init__(self, traces, bins, range):
-        super(EventSpikeTensorizer, self).__init__()
+    def __init__(self, traces, bins, range=None):
+        super(EventTraceTensorizer, self).__init__()
         self.traces = traces
-        self.bins = bins
+        self.bins = bins[:-1]
         self.range = range
 
         self.splined_traces = traces.apply(
@@ -29,7 +31,7 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
             interpolated = self.splined_traces.apply(
                 lambda s: pd.Series(s(bins),index=self.bins)
                 )
-            return xr.DataArray(interpolated.T,dims=['time','neuron'])
+            return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
 
         # do the extraction
         tensor = [extractor(ev) for _,ev in X.iterrows()]
@@ -41,9 +43,9 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
 class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventSpikeTensorizer."""
-    def __init__(self, spikes, bins, range):
+    def __init__(self, spikes, bins, range=None,tracizer=None,tracizer_kwargs=None):
         super(EventSpikeTensorizer, self).__init__()
-        self.spikes = traces
+        self.spikes = spikes
         self.bins = bins
         self.range = range
 
@@ -77,7 +79,7 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
             traces = tracizer.fit_transform(local_spikes)
             traces.index = self.bins[:-1]
 
-            return xr.DataArray(traces,dims=['time','neuron'])
+            return xr.DataArray(traces,dims=['time_from_event','neuron'])
 
         # do the extraction
         tensor = [extractor(ev) for _,ev in X.iterrows()]
