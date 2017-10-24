@@ -30,7 +30,7 @@ data = np.random.randn(len(TIME), 3)
 DFF = pd.DataFrame(data, TIME, NEURON)
 
 # create fake spike data
-SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,1.6]})
+SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,0.83]})
 
 # create bins attribute
 BINS  = np.arange(0,1,0.01)
@@ -42,7 +42,7 @@ def test_EventTraceTensorizer_dims():
     print(tensor)
 
     npt.assert_equal(tensor['neuron'].data,NEURON)
-    npt.assert_equal(tensor['time_from_event'].data,BINS)
+    npt.assert_equal(tensor['time_from_event'].data,BINS[:-1])
     npt.assert_equal(tensor['lbl'].data,LBL)
 
 def test_EventSpikeTensorizer():
@@ -51,5 +51,5 @@ def test_EventSpikeTensorizer():
     print(tensor)
 
     npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())
-    npt.assert_equal(tensor['time_from_event'].data,BINS)
+    npt.assert_equal(tensor['time_from_event'].data,BINS[:-1])
     npt.assert_equal(tensor['lbl'].data,LBL)
