@@ -12,7 +12,7 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     def __init__(self, traces, bins, range=None):
         super(EventTraceTensorizer, self).__init__()
         self.traces = traces
-        self.bins = bins
+        self.bins = bins[:-1]
         self.range = range
 
         self.splined_traces = traces.apply(
