@@ -138,7 +138,7 @@ class OASISInferer(TransformerMixin):
             if self.output=='denoised':
                 X_new[col] = c
             elif self.output=='spikes':
-                X_new[col] = s
+                X_new[col] = np.maximum(0, s)
             else:
                 raise NotImplementedError
 
