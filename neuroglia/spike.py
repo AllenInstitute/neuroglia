@@ -87,4 +87,6 @@ class Smoother(TransformerMixin):
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
+        if len(traces)==0:
+            traces = pd.DataFrame(index=self.bins[:-1])
         return traces
