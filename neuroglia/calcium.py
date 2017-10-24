@@ -143,3 +143,67 @@ class OASISInferer(BaseEstimator, TransformerMixin):
                 raise NotImplementedError
 
         return X_new
+
+class TraceTablizer(TransformerMixin):
+    """SM: same as SpikeTabilizer, but for calcium traces from roi_traces.h5 or dff.h5 files
+    converts an array of traces in the form of [[neuron0][neuron1]...[neuronN]] to a dataframe
+    with "neuron" and "time" columns, sorted by "time" (in seconds)
+    """
+    def __init__(self):
+        super(TraceTablizer, self).__init__()
+
+    def fit(self, X, y=None):       # pragma: no cover
+        return self
+
+    def transform(self, X):
+        f = h5py.File(X, 'r')
+        data = np.asarray(f['data'])
+        f.close()
+
+        # column_names = ['neuron{}'.format(x) for x in np.arange(0,len(raw_traces), 1)]
+        # df = pd.DataFrame(data, index = column_names).transpose()
+        whole_seconds = int(len(data[0]) / 30)
+        frame_dif = (len(data[0]) - (whole_seconds * 30))
+
+        split_data = [np.split(data[x][frame_dif:], whole_seconds) for x in range(len(data))]
+        data_s = [[np.mean(y) for y in split_data[x]] for x in range(len(split_data))]
+
+
+        df = pd.DataFrame(data_s).transpose()
+        return df
+
+
+def normalize_trace(trace, window, percentile): 
+
+    trace = pd.Series(trace)
+    p = lambda x: np.percentile(x,percentile) # suggest 8% in literature, but this doesnt work well for our data, use median
+    baseline = trace.rolling(window=window,center=True).apply(func=p)
+    baseline = baseline.fillna(method='bfill')
+    baseline = baseline.fillna(method='ffill')
+    dF = trace-baseline
+
+    dF = np.asarray(dF)   
+    F = np.asarray(baseline)
+
+    dFF = dF/F
+    return dFF
+
+
+class Normalize(BaseEstimator,TransformerMixin):
+    """docstring for Normalize."""
+    def __init__(self, window, percentile):
+        super(Normalize, self).__init__()
+        self.window = window
+        self.percentile = percentile
+        
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self,X):
+        # this is where the magic happens
+
+        df_norm = pd.DataFrame()
+        for col in df.columns:
+            df_norm[col] = normalize_trace(trace=df[col], window=180, percentile=8)
+
+        return df_norm
