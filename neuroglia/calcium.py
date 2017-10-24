@@ -64,6 +64,33 @@ class SavGolFilterDetrend(TransformerMixin):
         return X_new
 
 
+class EventRescale(TransformerMixin):
+    """
+    Savitzky-Golay filter detrending
+    """
+    def __init__(self,
+        log_transform=True,
+        scale=5):
+
+        self.log_transform = log_transform
+        self.scale = scale
+
+    def fit(self, X, y=None):
+        self.fit_params = {}
+        return self
+
+    def transform(self,X):
+        X_new = X.copy()
+        for col in X.columns:
+            tmp_data = X[col].values.astype(np.double)
+            tmp_data *= self.scale
+            if self.log_transform:
+                tmp_data = np.log(1 + tmp_data)
+            X_new[col] = tmp_data
+
+        return X_new
+
+
 class OASISInferer(TransformerMixin):
     """docstring for OASISInferer."""
     def __init__(self,
