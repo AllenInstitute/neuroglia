@@ -27,3 +27,14 @@ def test_Smoother_noresp():
         smoothed.values,
         np.zeros((len(BINS)-1,2),np.float),
         )
+
+def test_Smoother_empty():
+    smoother = Smoother(bins=BINS+100.0)
+    empty_spikes = SPIKES[SPIKES['time'].map(lambda x: False)]
+    print(empty_spikes)
+    smoothed = smoother.fit_transform(empty_spikes)
+
+    npt.assert_equal(
+        smoothed.values,
+        np.zeros((len(BINS)-1,2),np.float),
+        )
