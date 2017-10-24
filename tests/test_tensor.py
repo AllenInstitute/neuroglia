@@ -12,7 +12,7 @@ TENSOR = xr.DataArray(
         [[[0,1,2],[3,4,5]],[[6,7,8],[9,0,1]]],
         [[[0,1,2],[3,4,5]],[[6,7,8],[9,0,1]]]
     ]),
-    dims=('event','neuron','time'),
+    dims=('event','neuron','time_from_event'),
     coords={
         'event':['a','b'],
         'neuron': ['roi_1','roi_2'],

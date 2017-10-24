@@ -4,7 +4,7 @@ import numpy as np
 
 class ResponseExtractor(BaseEstimator,TransformerMixin):
     """docstring for Annotator."""
-    def __init__(self, method='mean', dim='time'):
+    def __init__(self, method='mean', dim='time_from_event'):
         super(ResponseExtractor, self).__init__()
 
         if method == 'mean':
@@ -19,4 +19,4 @@ class ResponseExtractor(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self, X):
-        return X.mean(dim=self.dim).data
+        return X.mean(dim=self.dim)
