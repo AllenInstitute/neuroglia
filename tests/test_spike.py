@@ -34,7 +34,4 @@ def test_Smoother_empty():
     print(empty_spikes)
     smoothed = smoother.fit_transform(empty_spikes)
 
-    npt.assert_equal(
-        smoothed.values,
-        np.zeros((len(BINS)-1,2),np.float),
-        )
+    assert len(smoothed)==(len(BINS)-1)
