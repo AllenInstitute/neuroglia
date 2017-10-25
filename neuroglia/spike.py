@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from scipy import stats
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, BaseEstimator
 
 
 def get_neuron(neuron_spikes):
@@ -10,36 +10,24 @@ def get_neuron(neuron_spikes):
     assert len(unique_neurons)==1
     return unique_neurons[0]
 
-class Binarizer(TransformerMixin):
+class Binarizer(BaseEstimator,TransformerMixin):
     """Binarize a population of spike events into an array of spike counts.
 
-
-
     """
-    def __init__(self,**hist_kwargs):
-        super(Binarizer, self).__init__()
-        # self.time_bins = np.arange(range[0],range[1],binsize)
-        self.hist_kwargs = hist_kwargs
+    def __init__(self,sample_times):
+        self.sample_times = sample_times
 
     def fit(self, X, y=None):
-        hist,bins = np.histogram(X['time'],**self.hist_kwargs)
-        self.time_bins = bins[:-1]
-
-        self.neurons = X.keys()
-        self.target_shape = len(self.neurons), len(self.time_bins)
-        self.target_dtype = hist.dtype
         return self
 
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
-        hist_kwargs = self.hist_kwargs.copy()
-        hist_kwargs.update(bins=self.time_bins)
-        trace, bins = np.histogram(
+        trace, _ = np.histogram(
             neuron_spikes['time'],
-            **hist_kwargs
+            self.sample_times
             )
-        return pd.Series(data=trace,index=bins[:-1],name=neuron)
+        return pd.Series(data=trace,index=self.sample_times[:-1],name=neuron)
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
@@ -53,17 +41,18 @@ KERNELS = {
 
 DEFAULT_TAU = 0.005
 
-class Smoother(TransformerMixin):
+class Smoother(BaseEstimator,TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,bins,range=None,kernel='gaussian',tau=DEFAULT_TAU):
-        super(Smoother, self).__init__()
-        self.bins = bins
-        self.range = range
+    def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU,trim=False):
+        if trim:
+            self.sample_times = sample_times[:-1]
+        else:
+            self.sample_times = sample_times
+
         self.kernel = kernel
         self.tau = tau
 
     def fit(self, X, y=None):
-        _, self.bins = np.histogram(X['time'],self.bins,self.range)
         return self
 
     def __make_trace(self,neuron_spikes):
@@ -73,20 +62,18 @@ class Smoother(TransformerMixin):
 
         data = (
             neuron_spikes['time']
-            .map(lambda t: kernel_func(t).pdf(self.bins)) # creates kernel function for each spike and applies to the time bins
+            .map(lambda t: kernel_func(t).pdf(self.sample_times)) # creates kernel function for each spike and applies to the time bins
             .sum() # and adds them together
         )
 
-        data = np.multiply(data[:-1],np.diff(self.bins))
-
         return pd.Series(
             data=data,
-            index=self.bins[:-1],
+            index=self.sample_times,
             name=neuron,
             )
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         if len(traces)==0:
-            traces = pd.DataFrame(index=self.bins[:-1])
+            traces = pd.DataFrame(index=self.sample_times)
         return traces
