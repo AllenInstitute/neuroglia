@@ -12,9 +12,8 @@ class MedianFilterDetrend(BaseEstimator, TransformerMixin):
         window=101,
         peak_std_threshold=4):
 
-        super(MedianFilterDetrend, self).__init__(
-            window = window,
-            peak_std_threshold = peak_std_threshold)
+        self.window = window
+        self.peak_std_threshold = peak_std_threshold
 
     def robust_std(self, x):
         '''
@@ -47,9 +46,8 @@ class SavGolFilterDetrend(BaseEstimator, TransformerMixin):
         window=201,
         order=3):
 
-        super(SavGolFilterDetrend, self).__init__(
-            window = window,
-            order = order)
+        self.window = window
+        self.order = order
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -74,9 +72,8 @@ class EventRescale(BaseEstimator, TransformerMixin):
         log_transform=True,
         scale=5):
 
-        super(EventRescale, self).__init__(
-            log_transform = log_transform,
-            scale = scale)
+        self.log_transform = log_transform
+        self.scale = scale
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -106,14 +103,16 @@ class OASISInferer(BaseEstimator, TransformerMixin):
         penalty=0,
         **kwargs
         ):
-        super(OASISInferer, self).__init__(
-            output = output,
-            g = g,
-            sn = sn,
-            b = b,
-            b_nonneg = b_nonneg,
-            optimize_g = optimize_g,
-            penalty = penalty)
+        super(OASISInferer, self).__init__()
+
+        self.output = output
+        self.g = g
+        self.sn = sn
+        self.b = b
+        self.b_nonneg = b_nonneg
+        self.optimize_g = optimize_g
+        self.penalty = penalty
+        self.kwargs = kwargs
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -131,7 +130,8 @@ class OASISInferer(BaseEstimator, TransformerMixin):
                 b = self.b,
                 b_nonneg = self.b_nonneg,
                 optimize_g = self.optimize_g,
-                penalty = self.penalty
+                penalty = self.penalty,
+                **self.kwargs,
                 )
             self.fit_params[col] = dict(b=b,g=g,lam=lam,)
 
