@@ -18,14 +18,15 @@ TS  = np.arange(0,1,0.01)
 def test_Smoother():
     smoother = Smoother(sample_times=TS)
     smoothed = smoother.fit_transform(SPIKES)
-
     npt.assert_array_equal(smoothed.index,TS)
+    clone(smoother)
 
 def test_Binarizer():
     binarizer = Binarizer(sample_times=TS)
     binarized = binarizer.fit_transform(SPIKES)
 
     npt.assert_array_equal(binarized.index,TS[:-1])
+    clone(binarizer)
 
 def test_Smoother_noresp():
     smoother = Smoother(sample_times=TS+100.0)
@@ -41,15 +42,3 @@ def test_Smoother_empty():
     empty_spikes = SPIKES[SPIKES['time'].map(lambda x: False)]
     smoothed = smoother.fit_transform(empty_spikes)
     npt.assert_array_equal(smoothed.index,TS+100)
-
-
-# Test for proper parameter structure
-def test_params():
-    fn_list = [
-        Smoother(sample_times=TS),
-        Binarizer(sample_times=TS),
-        ]
-    for fn in fn_list:
-        new_object_params = fn.get_params(deep=False)
-        for name, param in new_object_params.items():
-            new_object_params[name] = clone(param, safe=False)

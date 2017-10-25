@@ -11,13 +11,13 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
     def __init__(self, traces, sample_times):
         self.sample_times = sample_times
-
-        self.splined_traces = traces.apply(
-            lambda y: create_interpolator(traces.index,y),
-            axis=0,
-        )
+        self.traces = traces
 
     def fit(self, X, y=None):
+        self.splined_traces_ = self.traces.apply(
+            lambda y: create_interpolator(self.traces.index,y),
+            axis=0,
+        )
         return self
 
     def transform(self, X):
@@ -25,7 +25,7 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
         # define a local function that will extract traces around each event
         def extractor(ev):
             t = self.sample_times + ev['time']
-            interpolated = self.splined_traces.apply(
+            interpolated = self.splined_traces_.apply(
                 lambda s: pd.Series(s(t),index=self.sample_times)
                 )
             return xr.DataArray(interpolated.T,dims=['sample_times','neuron'])
@@ -43,17 +43,15 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     def __init__(self, spikes, sample_times, tracizer=None,tracizer_kwargs=None):
         self.spikes = spikes
         self.sample_times = sample_times
-
-        if tracizer_kwargs is None:
-            tracizer_kwargs = dict()
-
-        if tracizer is None:
-            tracizer = Smoother
-
         self.Tracizer = tracizer
         self.tracizer_kwargs = tracizer_kwargs
 
     def fit(self, X, y=None):
+        if self.Tracizer is None:
+            self.Tracizer = Smoother
+        if self.tracizer_kwargs is None:
+            self.tracizer_kwargs = dict()
+
         return self
 
     def transform(self, X):
