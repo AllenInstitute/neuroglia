@@ -7,6 +7,8 @@ import xarray.testing as xrt
 
 from neuroglia.event import EventTraceTensorizer, EventSpikeTensorizer
 
+from sklearn.base import clone
+
 
 # create fake event data
 TIME = [0.1, 0.2, 0.5]
@@ -40,7 +42,7 @@ def test_EventTraceTensorizer_dims():
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,NEURON)
-    npt.assert_equal(tensor['time_from_event'].data,TS)
+    npt.assert_equal(tensor['sample_times'].data,TS)
     npt.assert_equal(tensor['lbl'].data,LBL)
 
 def test_EventSpikeTensorizer():
@@ -48,7 +50,7 @@ def test_EventSpikeTensorizer():
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())
-    npt.assert_equal(tensor['time_from_event'].data,TS)
+    npt.assert_equal(tensor['sample_times'].data,TS)
     npt.assert_equal(tensor['lbl'].data,LBL)
 
 
@@ -58,3 +60,14 @@ def test_EventSpikeTensorizer_no_response():
 
     tensorizer = EventSpikeTensorizer(spikes,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
+
+# Test for proper parameter structure
+def test_params():
+    fn_list = [
+        EventSpikeTensorizer(SPIKES,sample_times=TS),
+        EventTraceTensorizer(DFF,sample_times=TS),
+        ]
+    for fn in fn_list:
+        new_object_params = fn.get_params(deep=False)
+        for name, param in new_object_params.items():
+            new_object_params[name] = clone(param, safe=False)

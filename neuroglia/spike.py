@@ -4,20 +4,18 @@ import xarray as xr
 from scipy import stats
 from sklearn.base import TransformerMixin, BaseEstimator
 
-from .utils import create_bin_array
-
 
 def get_neuron(neuron_spikes):
     unique_neurons = neuron_spikes['neuron'].unique()
     assert len(unique_neurons)==1
     return unique_neurons[0]
 
-class Binarizer(TransformerMixin):
+class Binarizer(BaseEstimator,TransformerMixin):
     """Binarize a population of spike events into an array of spike counts.
 
     """
-    def __init__(self,time_samples):
-        self.time_samples = time_samples
+    def __init__(self,sample_times):
+        self.sample_times = sample_times
 
     def fit(self, X, y=None):
         return self
@@ -27,7 +25,7 @@ class Binarizer(TransformerMixin):
 
         trace, _ = np.histogram(
             neuron_spikes['time'],
-            self.time_samples
+            self.sample_times
             )
         return pd.Series(data=trace,index=self.t,name=neuron)
 

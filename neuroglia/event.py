@@ -4,7 +4,7 @@ import xarray as xr
 
 from sklearn.base import BaseEstimator,TransformerMixin
 
-from .utils import create_interpolator, events_to_xr_dim, create_bin_array
+from .utils import create_interpolator, events_to_xr_dim
 from .spike import Smoother, DEFAULT_TAU
 
 class EventTraceTensorizer(BaseEstimator,TransformerMixin):
@@ -28,7 +28,7 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
             interpolated = self.splined_traces.apply(
                 lambda s: pd.Series(s(t),index=self.sample_times)
                 )
-            return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
+            return xr.DataArray(interpolated.T,dims=['sample_times','neuron'])
 
         # do the extraction
         tensor = [extractor(ev) for _,ev in X.iterrows()]
