@@ -17,7 +17,6 @@ CONCAT_DIM = xr.DataArray(
     name='event',
     dims=['event'],
     coords={
-        # 'index': ('event',range(3)),
         'time': ('event', TIME),
         'lbl': ('event',LBL),
     }

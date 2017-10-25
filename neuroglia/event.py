@@ -4,16 +4,15 @@ import xarray as xr
 
 from sklearn.base import BaseEstimator,TransformerMixin
 
-from .utils import create_interpolator, events_to_xr_dim
+from .utils import create_interpolator, events_to_xr_dim, create_bin_array
 from .spike import Smoother, DEFAULT_TAU
 
 class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
-    def __init__(self, traces, bins, range=None):
+    def __init__(self, traces, bins, window=None):
         super(EventTraceTensorizer, self).__init__()
         self.traces = traces
-        self.bins = bins[:-1]
-        self.range = range
+        self.t = create_bin_array(bins,window)[:-1]
 
         self.splined_traces = traces.apply(
             lambda y: create_interpolator(traces.index,y),
@@ -27,9 +26,9 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
         # define a local function that will extract traces around each event
         def extractor(ev):
-            bins = self.bins + ev['time']
+            t = self.t + ev['time']
             interpolated = self.splined_traces.apply(
-                lambda s: pd.Series(s(bins),index=self.bins)
+                lambda s: pd.Series(s(t),index=self.t)
                 )
             return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
 
@@ -43,11 +42,10 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
 class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventSpikeTensorizer."""
-    def __init__(self, spikes, bins, range=None,tracizer=None,tracizer_kwargs=None):
+    def __init__(self, spikes, bins, window=None,tracizer=None,tracizer_kwargs=None):
         super(EventSpikeTensorizer, self).__init__()
         self.spikes = spikes
-        self.bins = bins
-        self.range = range
+        self.bins = create_bin_array(bins,window)
 
         if tracizer_kwargs is None:
             tracizer_kwargs = dict()
@@ -65,9 +63,9 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
 
         # define a local function that will extract traces around each event
         def extractor(ev):
-            bins = self.bins + ev['time']
 
-            start = bins[0] - 10*DEFAULT_TAU,
+            bins = self.bins + ev['time']
+            start = bins[0] - 10*DEFAULT_TAU
             stop = bins[-1] + 10*DEFAULT_TAU
 
             local_mask = (
@@ -77,6 +75,7 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
 
             tracizer = self.Tracizer(bins,**self.tracizer_kwargs)
             traces = tracizer.fit_transform(local_spikes)
+
             traces.index = self.bins[:-1]
 
             return xr.DataArray(traces,dims=['time_from_event','neuron'])

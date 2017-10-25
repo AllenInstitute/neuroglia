@@ -4,6 +4,8 @@ import xarray as xr
 from scipy import stats
 from sklearn.base import TransformerMixin
 
+from .utils import create_bin_array
+
 
 def get_neuron(neuron_spikes):
     unique_neurons = neuron_spikes['neuron'].unique()
@@ -16,30 +18,32 @@ class Binarizer(TransformerMixin):
 
 
     """
-    def __init__(self,**hist_kwargs):
+    def __init__(self,bins,window=None,**hist_kwargs):
         super(Binarizer, self).__init__()
-        # self.time_bins = np.arange(range[0],range[1],binsize)
-        self.hist_kwargs = hist_kwargs
+
+        try:
+            window = hist.pop('range')
+        except KeyError:
+            pass
+
+        # use bins & window params to create a time axis
+        self.bins = create_bin_array(bins,window)
+        self.t = self.bins[:-1]
+
+        self.hist_kwargs = hist_kwargs.copy()
 
     def fit(self, X, y=None):
-        hist,bins = np.histogram(X['time'],**self.hist_kwargs)
-        self.time_bins = bins[:-1]
-
-        self.neurons = X.keys()
-        self.target_shape = len(self.neurons), len(self.time_bins)
-        self.target_dtype = hist.dtype
         return self
 
     def __make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
-        hist_kwargs = self.hist_kwargs.copy()
-        hist_kwargs.update(bins=self.time_bins)
-        trace, bins = np.histogram(
+        trace, _ = np.histogram(
             neuron_spikes['time'],
-            **hist_kwargs
+            self.bins,
+            **self.hist_kwargs
             )
-        return pd.Series(data=trace,index=bins[:-1],name=neuron)
+        return pd.Series(data=trace,index=self.t,name=neuron)
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
@@ -55,15 +59,18 @@ DEFAULT_TAU = 0.005
 
 class Smoother(TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,bins,range=None,kernel='gaussian',tau=DEFAULT_TAU):
+    def __init__(self,bins,window=None,kernel='gaussian',tau=DEFAULT_TAU):
         super(Smoother, self).__init__()
-        self.bins = bins
-        self.range = range
+        # self.bins = bins
+        # self.window = window
         self.kernel = kernel
         self.tau = tau
 
+        # use bins & window params to create a time axis
+        self.bins = create_bin_array(bins,window)
+        self.t = self.bins[:-1]
+
     def fit(self, X, y=None):
-        _, self.bins = np.histogram(X['time'],self.bins,self.range)
         return self
 
     def __make_trace(self,neuron_spikes):
@@ -77,16 +84,17 @@ class Smoother(TransformerMixin):
             .sum() # and adds them together
         )
 
+        # normalize the data
         data = np.multiply(data[:-1],np.diff(self.bins))
 
         return pd.Series(
             data=data,
-            index=self.bins[:-1],
+            index=self.t,
             name=neuron,
             )
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
         if len(traces)==0:
-            traces = pd.DataFrame(index=self.bins[:-1])
+            traces = pd.DataFrame(index=self.t)
         return traces

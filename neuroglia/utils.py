@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 from scipy import interpolate
 
@@ -27,3 +28,7 @@ def create_interpolator(t,y):
     """
     interpolator = interpolate.InterpolatedUnivariateSpline(t, y)
     return interpolator
+
+def create_bin_array(bins,window):
+    _, bin_arr = np.histogram([0,],bins,window)
+    return bin_arr
