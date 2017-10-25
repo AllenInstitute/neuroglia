@@ -21,6 +21,12 @@ def test_Smoother():
 
     npt.assert_array_equal(smoothed.index,TS)
 
+def test_Binarizer():
+    binarizer = Binarizer(sample_times=TS)
+    binarized = binarizer.fit_transform(SPIKES)
+
+    npt.assert_array_equal(binarized.index,TS[:-1])
+
 def test_Smoother_noresp():
     smoother = Smoother(sample_times=TS+100.0)
     smoothed = smoother.fit_transform(SPIKES)

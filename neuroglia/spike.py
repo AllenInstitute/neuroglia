@@ -27,7 +27,7 @@ class Binarizer(BaseEstimator,TransformerMixin):
             neuron_spikes['time'],
             self.sample_times
             )
-        return pd.Series(data=trace,index=self.t,name=neuron)
+        return pd.Series(data=trace,index=self.sample_times[:-1],name=neuron)
 
     def transform(self, X):
         traces = X.groupby('neuron').apply(self.__make_trace).T
