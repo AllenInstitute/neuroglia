@@ -1,10 +1,10 @@
 import numpy as np
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, BaseEstimator
 from oasis.functions import deconvolve
 from scipy.signal import medfilt, savgol_filter
 
 
-class MedianFilterDetrend(TransformerMixin):
+class MedianFilterDetrend(BaseEstimator, TransformerMixin):
     """
     Median filter detrending
     """
@@ -12,8 +12,9 @@ class MedianFilterDetrend(TransformerMixin):
         window=101,
         peak_std_threshold=4):
 
-        self.window = window
-        self.peak_std_threshold = peak_std_threshold
+        super(MedianFilterDetrend, self).__init__(
+            window = window,
+            peak_std_threshold = peak_std_threshold)
 
     def robust_std(self, x):
         '''
@@ -38,7 +39,7 @@ class MedianFilterDetrend(TransformerMixin):
         return X_new
 
 
-class SavGolFilterDetrend(TransformerMixin):
+class SavGolFilterDetrend(BaseEstimator, TransformerMixin):
     """
     Savitzky-Golay filter detrending
     """
@@ -46,8 +47,9 @@ class SavGolFilterDetrend(TransformerMixin):
         window=201,
         order=3):
 
-        self.window = window
-        self.order = order
+        super(SavGolFilterDetrend, self).__init__(
+            window = window,
+            order = order)
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -64,7 +66,7 @@ class SavGolFilterDetrend(TransformerMixin):
         return X_new
 
 
-class EventRescale(TransformerMixin):
+class EventRescale(BaseEstimator, TransformerMixin):
     """
     Savitzky-Golay filter detrending
     """
@@ -72,8 +74,9 @@ class EventRescale(TransformerMixin):
         log_transform=True,
         scale=5):
 
-        self.log_transform = log_transform
-        self.scale = scale
+        super(EventRescale, self).__init__(
+            log_transform = log_transform,
+            scale = scale)
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -91,7 +94,7 @@ class EventRescale(TransformerMixin):
         return X_new
 
 
-class OASISInferer(TransformerMixin):
+class OASISInferer(BaseEstimator, TransformerMixin):
     """docstring for OASISInferer."""
     def __init__(self,
         output='spikes',
@@ -103,16 +106,14 @@ class OASISInferer(TransformerMixin):
         penalty=0,
         **kwargs
         ):
-        super(OASISInferer, self).__init__()
-
-        self.output = output
-        self.g = g
-        self.sn = sn
-        self.b = b
-        self.b_nonneg = b_nonneg
-        self.optimize_g = optimize_g
-        self.penalty = penalty
-        self.kwargs = kwargs
+        super(OASISInferer, self).__init__(
+            output = output,
+            g = g,
+            sn = sn,
+            b = b,
+            b_nonneg = b_nonneg,
+            optimize_g = optimize_g,
+            penalty = penalty)
 
     def fit(self, X, y=None):
         self.fit_params = {}
@@ -130,8 +131,7 @@ class OASISInferer(TransformerMixin):
                 b = self.b,
                 b_nonneg = self.b_nonneg,
                 optimize_g = self.optimize_g,
-                penalty = self.penalty,
-                **self.kwargs,
+                penalty = self.penalty
                 )
             self.fit_params[col] = dict(b=b,g=g,lam=lam,)
 
