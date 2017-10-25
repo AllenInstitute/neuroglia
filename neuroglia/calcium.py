@@ -160,14 +160,11 @@ class TraceTablizer(TransformerMixin):
         data = np.asarray(f['data'])
         f.close()
 
-        # column_names = ['neuron{}'.format(x) for x in np.arange(0,len(raw_traces), 1)]
-        # df = pd.DataFrame(data, index = column_names).transpose()
         whole_seconds = int(len(data[0]) / 30)
         frame_dif = (len(data[0]) - (whole_seconds * 30))
 
         split_data = [np.split(data[x][frame_dif:], whole_seconds) for x in range(len(data))]
         data_s = [[np.mean(y) for y in split_data[x]] for x in range(len(split_data))]
-
 
         df = pd.DataFrame(data_s).transpose()
         return df
@@ -203,7 +200,7 @@ class Normalize(BaseEstimator,TransformerMixin):
         # this is where the magic happens
 
         df_norm = pd.DataFrame()
-        for col in df.columns:
-            df_norm[col] = normalize_trace(trace=df[col], window=180, percentile=8)
+        for col in X.columns:
+            df_norm[col] = normalize_trace(trace=X[col], window=window, percentile=percentile)
 
         return df_norm
