@@ -9,10 +9,8 @@ from .spike import Smoother, DEFAULT_TAU
 
 class EventTraceTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
-    def __init__(self, traces, bins, window=None):
-        super(EventTraceTensorizer, self).__init__()
-        self.traces = traces
-        self.t = create_bin_array(bins,window)[:-1]
+    def __init__(self, traces, sample_times):
+        self.sample_times = sample_times
 
         self.splined_traces = traces.apply(
             lambda y: create_interpolator(traces.index,y),
@@ -26,9 +24,9 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
         # define a local function that will extract traces around each event
         def extractor(ev):
-            t = self.t + ev['time']
+            t = self.sample_times + ev['time']
             interpolated = self.splined_traces.apply(
-                lambda s: pd.Series(s(t),index=self.t)
+                lambda s: pd.Series(s(t),index=self.sample_times)
                 )
             return xr.DataArray(interpolated.T,dims=['time_from_event','neuron'])
 
@@ -42,10 +40,9 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
 
 class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
     """docstring for EventSpikeTensorizer."""
-    def __init__(self, spikes, bins, window=None,tracizer=None,tracizer_kwargs=None):
-        super(EventSpikeTensorizer, self).__init__()
+    def __init__(self, spikes, sample_times, tracizer=None,tracizer_kwargs=None):
         self.spikes = spikes
-        self.bins = create_bin_array(bins,window)
+        self.sample_times = sample_times
 
         if tracizer_kwargs is None:
             tracizer_kwargs = dict()
@@ -64,21 +61,21 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
         # define a local function that will extract traces around each event
         def extractor(ev):
 
-            bins = self.bins + ev['time']
-            start = bins[0] - 10*DEFAULT_TAU
-            stop = bins[-1] + 10*DEFAULT_TAU
+            t = self.sample_times + ev['time']
+            start = t[0] - 10*DEFAULT_TAU
+            stop = t[-1] + 10*DEFAULT_TAU
 
             local_mask = (
                 (self.spikes['time']>start) & (self.spikes['time']<stop) # TODO: replace with np.search_sorted to speed up this query
             )
             local_spikes = self.spikes[local_mask]
 
-            tracizer = self.Tracizer(bins,**self.tracizer_kwargs)
+            tracizer = self.Tracizer(t,**self.tracizer_kwargs)
             traces = tracizer.fit_transform(local_spikes)
 
-            traces.index = self.bins[:-1]
+            traces.index = self.sample_times
 
-            return xr.DataArray(traces,dims=['time_from_event','neuron'])
+            return xr.DataArray(traces,dims=['sample_times','neuron'])
 
         # do the extraction
         tensor = [extractor(ev) for _,ev in X.iterrows()]

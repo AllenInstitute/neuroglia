@@ -11,31 +11,25 @@ from neuroglia.spike import Smoother
 SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,0.83]})
 
 # create bins attribute
-BINS  = np.arange(0,1,0.01)
+TS  = np.arange(0,1,0.01)
 
 def test_Smoother():
-    smoother = Smoother(bins=BINS)
+    smoother = Smoother(sample_times=TS)
     smoothed = smoother.fit_transform(SPIKES)
 
-    npt.assert_array_equal(smoothed.index,BINS[:-1])
-
-def test_Smoother_integer_bins():
-    smoother = Smoother(bins=100,window=(0,1.0))
-    smoothed = smoother.fit_transform(SPIKES)
-
-    assert len(smoothed.index)==100
+    npt.assert_array_equal(smoothed.index,TS)
 
 def test_Smoother_noresp():
-    smoother = Smoother(bins=BINS+100.0)
+    smoother = Smoother(sample_times=TS+100.0)
     smoothed = smoother.fit_transform(SPIKES)
 
     npt.assert_equal(
         smoothed.values,
-        np.zeros((len(BINS)-1,2),np.float),
+        np.zeros((len(TS),2),np.float),
         )
 
 def test_Smoother_empty():
-    smoother = Smoother(bins=BINS+100.0)
+    smoother = Smoother(sample_times=TS+100.0)
     empty_spikes = SPIKES[SPIKES['time'].map(lambda x: False)]
     smoothed = smoother.fit_transform(empty_spikes)
-    npt.assert_array_equal(smoothed.index,BINS[:-1]+100)
+    npt.assert_array_equal(smoothed.index,TS+100)
