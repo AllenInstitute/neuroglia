@@ -18,11 +18,11 @@ TENSOR = xr.DataArray(
         [[0,1,2],[3,4,5]],
         [[6,7,8],[9,0,1]]
     ]),
-    dims=('event','neuron','time_from_event'),
+    dims=('event','neuron','sample_times'),
     coords={
         'event': LBL,
         'neuron': NRN,
-        'time_from_event': TIME,
+        'sample_times': TIME,
     },
 )
 

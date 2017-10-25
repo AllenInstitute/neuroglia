@@ -45,6 +45,8 @@ def test_EventTraceTensorizer_dims():
     npt.assert_equal(tensor['sample_times'].data,TS)
     npt.assert_equal(tensor['lbl'].data,LBL)
 
+    clone(tensorizer)
+
 def test_EventSpikeTensorizer():
     tensorizer = EventSpikeTensorizer(SPIKES,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
@@ -53,6 +55,8 @@ def test_EventSpikeTensorizer():
     npt.assert_equal(tensor['sample_times'].data,TS)
     npt.assert_equal(tensor['lbl'].data,LBL)
 
+    clone(tensorizer)
+
 
 def test_EventSpikeTensorizer_no_response():
 
@@ -60,14 +64,3 @@ def test_EventSpikeTensorizer_no_response():
 
     tensorizer = EventSpikeTensorizer(spikes,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
-
-# Test for proper parameter structure
-def test_params():
-    fn_list = [
-        EventSpikeTensorizer(SPIKES,sample_times=TS),
-        EventTraceTensorizer(DFF,sample_times=TS),
-        ]
-    for fn in fn_list:
-        new_object_params = fn.get_params(deep=False)
-        for name, param in new_object_params.items():
-            new_object_params[name] = clone(param, safe=False)

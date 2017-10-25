@@ -43,11 +43,9 @@ DEFAULT_TAU = 0.005
 
 class Smoother(BaseEstimator,TransformerMixin):
     """docstring for Smoother."""
-    def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU,trim=False):
-        if trim:
-            self.sample_times = sample_times[:-1]
-        else:
-            self.sample_times = sample_times
+    def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU):
+
+        self.sample_times = sample_times
 
         self.kernel = kernel
         self.tau = tau
