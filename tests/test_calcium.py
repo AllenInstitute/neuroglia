@@ -1,6 +1,7 @@
 from neuroglia.calcium import MedianFilterDetrend, SavGolFilterDetrend
 from neuroglia.calcium import OASISInferer
 from oasis.functions import gen_data
+from sklearn.base import clone
 
 import numpy as np
 import pandas as pd
@@ -9,6 +10,15 @@ import xarray as xr
 import numpy.testing as npt
 import xarray.testing as xrt
 
+# Test for proper parameter structure
+def test_params():
+    fn_list = [MedianFilterDetrend(), SavGolFilterDetrend(), OASISInferer()]
+    for fn in fn_list:
+        new_object_params = fn.get_params(deep=False)
+        for name, param in new_object_params.items():
+            new_object_params[name] = clone(param, safe=False)
+
+# Test functions perform as expected
 true_b = 2
 y, true_c, true_s = map(np.squeeze, gen_data(N=3, b=true_b, seed=0))
 y = y.T
@@ -40,3 +50,4 @@ if __name__ == '__main__':
     test_MedianFilterDetrend()
     test_SavGolFilterDetrend()
     test_OASISInferer()
+    test_params()

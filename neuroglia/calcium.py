@@ -1,10 +1,10 @@
 import numpy as np
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, BaseEstimator
 from oasis.functions import deconvolve
 from scipy.signal import medfilt, savgol_filter
 
 
-class MedianFilterDetrend(TransformerMixin):
+class MedianFilterDetrend(BaseEstimator, TransformerMixin):
     """
     Median filter detrending
     """
@@ -38,7 +38,7 @@ class MedianFilterDetrend(TransformerMixin):
         return X_new
 
 
-class SavGolFilterDetrend(TransformerMixin):
+class SavGolFilterDetrend(BaseEstimator, TransformerMixin):
     """
     Savitzky-Golay filter detrending
     """
@@ -64,7 +64,34 @@ class SavGolFilterDetrend(TransformerMixin):
         return X_new
 
 
-class OASISInferer(TransformerMixin):
+class EventRescale(BaseEstimator, TransformerMixin):
+    """
+    Savitzky-Golay filter detrending
+    """
+    def __init__(self,
+        log_transform=True,
+        scale=5):
+
+        self.log_transform = log_transform
+        self.scale = scale
+
+    def fit(self, X, y=None):
+        self.fit_params = {}
+        return self
+
+    def transform(self,X):
+        X_new = X.copy()
+        for col in X.columns:
+            tmp_data = X[col].values.astype(np.double)
+            tmp_data *= self.scale
+            if self.log_transform:
+                tmp_data = np.log(1 + tmp_data)
+            X_new[col] = tmp_data
+
+        return X_new
+
+
+class OASISInferer(BaseEstimator, TransformerMixin):
     """docstring for OASISInferer."""
     def __init__(self,
         output='spikes',
@@ -111,7 +138,7 @@ class OASISInferer(TransformerMixin):
             if self.output=='denoised':
                 X_new[col] = c
             elif self.output=='spikes':
-                X_new[col] = s
+                X_new[col] = np.maximum(0, s)
             else:
                 raise NotImplementedError
 
