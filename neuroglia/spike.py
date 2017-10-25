@@ -46,7 +46,6 @@ class Smoother(BaseEstimator,TransformerMixin):
     def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU):
 
         self.sample_times = sample_times
-        self.trim = trim
 
         self.kernel = kernel
         self.tau = tau
