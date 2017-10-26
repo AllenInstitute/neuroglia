@@ -131,7 +131,7 @@ class OASISInferer(BaseEstimator, TransformerMixin):
                 b_nonneg = self.b_nonneg,
                 optimize_g = self.optimize_g,
                 penalty = self.penalty,
-                **self.kwargs,
+                **self.kwargs
                 )
             self.fit_params[col] = dict(b=b,g=g,lam=lam,)
 
