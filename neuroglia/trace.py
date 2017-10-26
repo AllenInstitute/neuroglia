@@ -1,6 +1,35 @@
 import numpy as np
 import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.preprocessing import binarize
+
+class Binarizer(BaseEstimator, TransformerMixin):
+    """docstring for scikit learn Binarizer
+    """
+
+    def __init__(self, threshold=0.0, copy=True):
+        self.threshold = threshold
+        self.copy = copy
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df = True
+        try:
+            index = X.index
+            columns = X.columns
+        except AttributeError:
+            df = False
+
+        X_ = binarize(X, threshold=self.threshold, copy=self.copy)
+
+        if df:
+            return pd.DataFrame(data=X_,index=index,columns=columns)
+        else:
+            return X_
+
+
 
 def edge_detector(X,falling=False):
 

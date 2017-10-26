@@ -4,7 +4,7 @@ import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 
-from neuroglia.trace import EdgeDetector, WhenTrueFinder
+from neuroglia.trace import EdgeDetector, WhenTrueFinder, Binarizer
 
 X = np.array(
     [[0, 0, 1],
@@ -67,3 +67,24 @@ def test_WhenTrueFinder():
     print(output)
     print(DF)
     pdt.assert_frame_equal(output,WHENTRUE)
+
+X2 = np.array(
+    [[0, 0, 1],
+     [1, 2, 0],
+     [0, 1, 10]
+    ])
+
+X2DF = pd.DataFrame(
+    data=X,
+    index=[0.1,0.2,0.3],
+    columns=['n1','n2','n3'],
+)
+
+def test_Binarizer():
+    binarizer = Binarizer()
+    output = binarizer.fit_transform(X2)
+    npt.assert_array_equal(output,X)
+
+    binarizer = Binarizer()
+    output = binarizer.fit_transform(X2DF)
+    pdt.assert_frame_equal(output,XDF)
