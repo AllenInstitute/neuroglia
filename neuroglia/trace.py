@@ -1,7 +1,15 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator
 
 def edge_detector(X,falling=False):
+
+    df = True
+    try:
+        index = X.index
+        columns = X.columns
+    except AttributeError:
+        df = False
 
     X = np.apply_along_axis(
         func1d=np.diff,
@@ -12,9 +20,16 @@ def edge_detector(X,falling=False):
     X = np.vstack((empty_row,X))
 
     if falling:
-        return X < 0
+        X = X < 0
     else:
-        return X > 0
+        X = X > 0
+
+    X = X.astype(int)
+
+    if df:
+        return pd.DataFrame(data=X,index=index,columns=columns)
+    else:
+        return X
 
 class EdgeDetector(BaseEstimator,TransformerMixin):
     """docstring for EdgeDetector."""

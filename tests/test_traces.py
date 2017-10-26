@@ -12,11 +12,23 @@ X = np.array(
      [0, 1, 1]
     ])
 
+XDF = pd.DataFrame(
+    data=X,
+    index=[0.1,0.2,0.3],
+    columns=['n1','n2','n3'],
+)
+
 RISING = np.array(
     [[0, 0, 0],
      [1, 1, 0],
      [0, 0, 1],
     ]
+)
+
+DF = pd.DataFrame(
+    data=RISING,
+    index=[0.1,0.2,0.3],
+    columns=['n1','n2','n3'],
 )
 
 FALLING = np.array(
@@ -35,11 +47,13 @@ def test_EdgeDetector():
     output = detector.fit_transform(X)
     npt.assert_array_equal(output,FALLING)
 
-DF = pd.DataFrame(
-    data=RISING,
-    index=[0.1,0.2,0.3],
-    columns=['n1','n2','n3'],
-)
+    detector = EdgeDetector()
+    output = detector.fit_transform(XDF)
+    npt.assert_array_equal(output.values,RISING)
+    print(output)
+    print(DF)
+    pdt.assert_frame_equal(output,DF)
+
 
 WHENTRUE = pd.DataFrame(dict(
     neuron=['n1','n2','n3'],
