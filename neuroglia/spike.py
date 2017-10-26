@@ -10,8 +10,8 @@ def get_neuron(neuron_spikes):
     assert len(unique_neurons)==1
     return unique_neurons[0]
 
-class Binarizer(BaseEstimator,TransformerMixin):
-    """Binarize a population of spike events into an array of spike counts.
+class Binner(BaseEstimator,TransformerMixin):
+    """Bin a population of spike events into an array of spike counts.
 
     """
     def __init__(self,sample_times):
