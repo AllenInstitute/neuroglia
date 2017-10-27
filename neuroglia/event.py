@@ -71,7 +71,7 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
             tracizer = self.Tracizer(t,**self.tracizer_kwargs)
             traces = tracizer.fit_transform(local_spikes)
 
-            traces.index = self.sample_times
+            traces.index = self.sample_times[:-1]
 
             return xr.DataArray(traces,dims=['sample_times','neuron'])
 
