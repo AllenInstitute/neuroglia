@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator,TransformerMixin
 from .utils import create_interpolator, events_to_xr_dim
 from .spike import Smoother, DEFAULT_TAU
 
-class EventTraceTensorizer(BaseEstimator,TransformerMixin):
+class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
     def __init__(self, traces, sample_times):
         self.sample_times = sample_times
@@ -38,8 +38,8 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
         return xr.concat(tensor,dim=concat_dim)
 
 
-class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
-    """docstring for EventSpikeTensorizer."""
+class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
+    """docstring for PeriEventSpikeSampler."""
     def __init__(self, spikes, sample_times, tracizer=None,tracizer_kwargs=None):
         self.spikes = spikes
         self.sample_times = sample_times

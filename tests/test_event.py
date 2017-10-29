@@ -5,7 +5,7 @@ import numpy as np
 import numpy.testing as npt
 import xarray.testing as xrt
 
-from neuroglia.event import EventTraceTensorizer, EventSpikeTensorizer
+from neuroglia.event import PeriEventTraceSampler, PeriEventSpikeSampler
 
 from sklearn.base import clone
 
@@ -37,8 +37,8 @@ SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,0.83]})
 TS  = np.arange(0,1,0.01)
 
 
-def test_EventTraceTensorizer_dims():
-    tensorizer = EventTraceTensorizer(DFF,sample_times=TS)
+def test_PeriEventTraceSampler_dims():
+    tensorizer = PeriEventTraceSampler(DFF,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,NEURON)
@@ -47,8 +47,8 @@ def test_EventTraceTensorizer_dims():
 
     clone(tensorizer)
 
-def test_EventSpikeTensorizer():
-    tensorizer = EventSpikeTensorizer(SPIKES,sample_times=TS)
+def test_PeriEventSpikeSampler():
+    tensorizer = PeriEventSpikeSampler(SPIKES,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())
@@ -58,9 +58,9 @@ def test_EventSpikeTensorizer():
     clone(tensorizer)
 
 
-def test_EventSpikeTensorizer_no_response():
+def test_PeriEventSpikeSampler_no_response():
 
     spikes = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,1.6]})
 
-    tensorizer = EventSpikeTensorizer(spikes,sample_times=TS)
+    tensorizer = PeriEventSpikeSampler(spikes,sample_times=TS)
     tensor = tensorizer.fit_transform(EVENTS)
