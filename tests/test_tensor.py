@@ -5,7 +5,7 @@ import numpy as np
 import numpy.testing as npt
 import xarray.testing as xrt
 
-from neuroglia.tensor import ResponseExtractor
+from neuroglia.tensor import ResponseReducer
 
 LBL = ['a','b','a','b']
 NRN = ['roi_1','roi_2']
@@ -26,8 +26,8 @@ TENSOR = xr.DataArray(
     },
 )
 
-def test_ResponseExtractor_smoke():
-    extractor = ResponseExtractor()
+def test_ResponseReducer_smoke():
+    extractor = ResponseReducer()
     responses = extractor.fit_transform(TENSOR)
 
     npt.assert_array_equal(responses['event'],LBL)
