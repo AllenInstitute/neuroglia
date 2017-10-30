@@ -19,4 +19,4 @@ class ResponseReducer(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self, X):
-        return X.mean(dim=self.dim)
+        return X.reduce(self.method,dim=self.dim)
