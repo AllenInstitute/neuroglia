@@ -40,9 +40,10 @@ class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
 
 class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
     """docstring for PeriEventSpikeSampler."""
-    def __init__(self, spikes, sample_times, tracizer=None,tracizer_kwargs=None):
+    def __init__(self, spikes, sample_times, fillna=True, tracizer=None,tracizer_kwargs=None):
         self.spikes = spikes
         self.sample_times = sample_times
+        self.fillna = fillna
         self.Tracizer = tracizer
         self.tracizer_kwargs = tracizer_kwargs
 
@@ -71,7 +72,7 @@ class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
             tracizer = self.Tracizer(t,**self.tracizer_kwargs)
             traces = tracizer.fit_transform(local_spikes)
 
-            traces.index = self.sample_times[:-1]
+            traces.index = self.sample_times[:len(traces)]
 
             return xr.DataArray(traces,dims=['sample_times','neuron'])
 
@@ -80,4 +81,9 @@ class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
         concat_dim = events_to_xr_dim(X)
 
         # concatenate the DataArrays into a single DataArray
-        return xr.concat(tensor,dim=concat_dim)
+        tensor = xr.concat(tensor,dim=concat_dim)
+
+        if self.fillna:
+            tensor.fillna(0.0)
+
+        return tensor
