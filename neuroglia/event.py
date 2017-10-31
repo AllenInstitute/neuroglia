@@ -84,6 +84,6 @@ class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
         tensor = xr.concat(tensor,dim=concat_dim)
 
         if self.fillna:
-            tensor.fillna(0.0)
+            tensor = tensor.fillna(0)
 
         return tensor
