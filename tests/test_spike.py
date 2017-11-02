@@ -5,7 +5,7 @@ import numpy as np
 import numpy.testing as npt
 import xarray.testing as xrt
 
-from neuroglia.spike import Smoother, Binarizer
+from neuroglia.spike import Smoother, Binner
 
 from sklearn.base import clone
 
@@ -21,8 +21,8 @@ def test_Smoother():
     npt.assert_array_equal(smoothed.index,TS)
     clone(smoother)
 
-def test_Binarizer():
-    binarizer = Binarizer(sample_times=TS)
+def test_Binner():
+    binarizer = Binner(sample_times=TS)
     binarized = binarizer.fit_transform(SPIKES)
 
     npt.assert_array_equal(binarized.index,TS[:-1])

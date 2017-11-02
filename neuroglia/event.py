@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator,TransformerMixin
 from .utils import create_interpolator, events_to_xr_dim
 from .spike import Smoother, DEFAULT_TAU
 
-class EventTraceTensorizer(BaseEstimator,TransformerMixin):
+class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
     """docstring for EventTensorizer."""
     def __init__(self, traces, sample_times):
         self.sample_times = sample_times
@@ -38,11 +38,12 @@ class EventTraceTensorizer(BaseEstimator,TransformerMixin):
         return xr.concat(tensor,dim=concat_dim)
 
 
-class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
-    """docstring for EventSpikeTensorizer."""
-    def __init__(self, spikes, sample_times, tracizer=None,tracizer_kwargs=None):
+class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
+    """docstring for PeriEventSpikeSampler."""
+    def __init__(self, spikes, sample_times, fillna=True, tracizer=None,tracizer_kwargs=None):
         self.spikes = spikes
         self.sample_times = sample_times
+        self.fillna = fillna
         self.Tracizer = tracizer
         self.tracizer_kwargs = tracizer_kwargs
 
@@ -71,7 +72,7 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
             tracizer = self.Tracizer(t,**self.tracizer_kwargs)
             traces = tracizer.fit_transform(local_spikes)
 
-            traces.index = self.sample_times
+            traces.index = self.sample_times[:len(traces)]
 
             return xr.DataArray(traces,dims=['sample_times','neuron'])
 
@@ -80,4 +81,9 @@ class EventSpikeTensorizer(BaseEstimator,TransformerMixin):
         concat_dim = events_to_xr_dim(X)
 
         # concatenate the DataArrays into a single DataArray
-        return xr.concat(tensor,dim=concat_dim)
+        tensor = xr.concat(tensor,dim=concat_dim)
+
+        if self.fillna:
+            tensor = tensor.fillna(0)
+
+        return tensor

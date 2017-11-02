@@ -2,10 +2,10 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 
-class ResponseExtractor(BaseEstimator,TransformerMixin):
+class ResponseReducer(BaseEstimator,TransformerMixin):
     """docstring for Annotator."""
     def __init__(self, method='mean', dim='sample_times'):
-        super(ResponseExtractor, self).__init__()
+        super(ResponseReducer, self).__init__()
 
         if method == 'mean':
             self.method = np.mean
@@ -19,4 +19,4 @@ class ResponseExtractor(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self, X):
-        return X.mean(dim=self.dim)
+        return X.reduce(self.method,dim=self.dim)
