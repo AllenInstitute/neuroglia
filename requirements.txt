@@ -2,3 +2,7 @@ numpy
 pandas
 xarray
 pytest
+pytest-cov
+scipy
+scikit-learn
+cython
