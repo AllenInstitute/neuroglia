@@ -1,0 +1,106 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test-py27
+      - test-py35
+
+jobs:
+  test-py35:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.5.3
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - py35-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - py35-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install git+https://github.com/j-friedrich/OASIS.git
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: py35-dependencies-{{ checksum "requirements.txt" }}
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            py.test
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+  test-py27:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:2.7.13
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - py27-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - py27-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            virtualenv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install git+https://github.com/j-friedrich/OASIS.git
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: py27-dependencies-{{ checksum "requirements.txt" }}
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            py.test
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports

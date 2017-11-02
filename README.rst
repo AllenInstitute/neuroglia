@@ -3,6 +3,9 @@
 neuroglia
 =========
 
+.. image:: https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=svg&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13
+    :target: https://circleci.com/gh/AllenInstitute/neuroglia
+
 What is neuroglia?
 ------------------
 
