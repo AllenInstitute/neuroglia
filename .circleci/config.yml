@@ -40,7 +40,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
             pip install git+https://github.com/j-friedrich/OASIS.git
 
       - save_cache:
@@ -86,7 +86,7 @@ jobs:
           command: |
             virtualenv venv
             . venv/bin/activate
-            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
             pip install git+https://github.com/j-friedrich/OASIS.git
 
       - save_cache:
