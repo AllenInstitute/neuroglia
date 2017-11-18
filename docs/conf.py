@@ -32,6 +32,7 @@ project_root = os.path.dirname(cwd)
 sys.path.insert(0, project_root)
 
 import neuroglia
+import sphinx_bootstrap_theme
 
 # -- General configuration ---------------------------------------------
 
@@ -40,7 +41,14 @@ import neuroglia
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    # 'numpydoc',
+    'sphinx.ext.napoleon',
+    'sphinx_gallery.gen_gallery',
+    ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -56,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'neuroglia'
-copyright = u"2017, Nicholas Cain"
+copyright = u"2017, Allen Institute for Brain Science"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -106,17 +114,50 @@ pygments_style = 'sphinx'
 # documents.
 #keep_warnings = False
 
+sphinx_gallery_conf = {
+    # path to your examples scripts
+    'examples_dirs': '../examples',
+    # path where to save gallery generated examples
+    'gallery_dirs': 'gallery',
+    # #directory where function granular galleries are stored
+    'backreferences_dir': 'generated',
+    #
+    # # Modules for which function level galleries are created.  In
+    # # this case sphinx_gallery and numpy in a tuple of strings.
+    # 'doc_module': ('neuroglia',),
+    'download_section_examples': False,
+    'default_thumb_file': '/local1/astrocytes-jsnyder.jpg',
+    'min_reported_time': 10,
+    }
+
 
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+# html_theme = 'alabaster'
+html_theme = 'bootstrap'
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+# html_theme_options = {}
+
+html_theme_options = {
+    'source_link_position': "footer",
+    'bootswatch_theme': "yeti", # https://bootswatch.com/
+    'navbar_sidebarrel': False,
+    'bootstrap_version': "3",
+    'navbar_links': [
+                     ("Introduction", "introduction"),
+                     ("Examples",'examples'),
+                     ("API", "api"),
+                     ],
+
+    }
+
+
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -153,7 +194,17 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
+# html_sidebars = {
+#     '**': [
+#         'about.html',
+#         'navigation.html',
+#         ''
+#         # 'relations.html',
+#         'searchbox.html',
+#         # 'donate.html',
+#     ]
+# }
 
 # Additional templates that should be rendered to pages, maps page names
 # to template names.
@@ -190,6 +241,20 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'neurogliadoc'
 
+autosummary_generate = True
+
+# # autosummary strategy borrowed from pandas
+# with open("index.rst") as f:
+#     index_rst_lines = f.readlines()
+# autosummary_generate = False
+# import re
+# if any([re.match("\s*api\s*", l) for l in index_rst_lines]):
+#     autosummary_generate = True
+
+# this is needed for some reason...
+# see https://github.com/numpy/numpydoc/issues/69
+# numpydoc_class_members_toctree = False
+# class_members_toctree = False
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -210,7 +275,7 @@ latex_elements = {
 latex_documents = [
     ('index', 'neuroglia.tex',
      u'neuroglia Documentation',
-     u'Nicholas Cain', 'manual'),
+     u'Justin Kiggins', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -241,7 +306,7 @@ latex_documents = [
 man_pages = [
     ('index', 'neuroglia',
      u'neuroglia Documentation',
-     [u'Nicholas Cain'], 1)
+     [u'Justin Kiggins'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -256,7 +321,7 @@ man_pages = [
 texinfo_documents = [
     ('index', 'neuroglia',
      u'neuroglia Documentation',
-     u'Nicholas Cain',
+     u'Justin Kiggins',
      'neuroglia',
      'One line description of project.',
      'Miscellaneous'),
