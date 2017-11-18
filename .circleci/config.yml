@@ -31,7 +31,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - py35-dependencies-{{ checksum "requirements.txt" }}
+          - py35-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt"}}
           # fallback to using the latest cache if no exact match is found
           - py35-dependencies-
 
@@ -46,7 +46,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: py35-dependencies-{{ checksum "requirements.txt" }}
+          key: py35-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt"}}
 
       # run tests!
       - run:

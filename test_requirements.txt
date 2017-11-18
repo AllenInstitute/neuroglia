@@ -1,8 +1,0 @@
-numpy
-pandas
-xarray
-scipy
-scikit-learn
-cython
-pytest
-pytest-cov
