@@ -195,16 +195,6 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 # html_sidebars = {}
-# html_sidebars = {
-#     '**': [
-#         'about.html',
-#         'navigation.html',
-#         ''
-#         # 'relations.html',
-#         'searchbox.html',
-#         # 'donate.html',
-#     ]
-# }
 
 # Additional templates that should be rendered to pages, maps page names
 # to template names.
@@ -242,19 +232,6 @@ html_static_path = ['_static']
 htmlhelp_basename = 'neurogliadoc'
 
 autosummary_generate = True
-
-# # autosummary strategy borrowed from pandas
-# with open("index.rst") as f:
-#     index_rst_lines = f.readlines()
-# autosummary_generate = False
-# import re
-# if any([re.match("\s*api\s*", l) for l in index_rst_lines]):
-#     autosummary_generate = True
-
-# this is needed for some reason...
-# see https://github.com/numpy/numpydoc/issues/69
-# numpydoc_class_members_toctree = False
-# class_members_toctree = False
 
 # -- Options for LaTeX output ------------------------------------------
 
