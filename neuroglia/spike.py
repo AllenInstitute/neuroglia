@@ -13,11 +13,55 @@ def get_neuron(neuron_spikes):
 class Binner(BaseEstimator,TransformerMixin):
     """Bin a population of spike events into an array of spike counts.
 
+    This transformer converts a table of spike times into a series of spike
+    counts. Spikes are binned according to the spike_times argument.
+
+    Parameters
+    ----------
+
+    sample_times : array-like
+        The samples times that will be used to bin spikes.
+
+    Attributes
+    ----------
+
+
+    Examples
+    --------
+
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> from neuroglia.spike import Binner
+    >>> binner = Binner(np.arange(0,1.0,0.001))
+    >>> spikes = pd.DataFrame({'times':np.random.rand})
+    >>> X = binner.fit_transform(spikes)
+
+    See also
+    --------
+
+    neuroglia.spike.Smoother
+    neuroglia.nwb.SpikeTablizer
+
     """
     def __init__(self,sample_times):
         self.sample_times = sample_times
 
     def fit(self, X, y=None):
+        """ Do nothing an return the estimator unchanged.
+
+        This method is just there to implement the usual API and hence work in pipelines.
+
+        Parameters
+        ----------
+
+        X : pandas DataFrame with columns ['time','neuron']
+        y : (ignored)
+
+        Returns
+        -------
+
+        self
+        """
         return self
 
     def __make_trace(self,neuron_spikes):
@@ -30,6 +74,20 @@ class Binner(BaseEstimator,TransformerMixin):
         return pd.Series(data=trace,index=self.sample_times[:-1],name=neuron)
 
     def transform(self, X):
+        """ Bin each neuron's spikes into a trace of spike counts.
+
+        Parameters
+        ----------
+        X : pandas DataFrame with columns ['time','neuron']
+            spike times that will be binned
+        y : (ignored)
+
+        Returns
+        -------
+        Xt : pandas DataFrame of spike counts
+            Columns are neuron labels and the index is the left edge of the
+            sample times.
+        """
         traces = X.groupby('neuron').apply(self.__make_trace).T
         return traces
 
@@ -42,7 +100,38 @@ KERNELS = {
 DEFAULT_TAU = 0.005
 
 class Smoother(BaseEstimator,TransformerMixin):
-    """docstring for Smoother."""
+    """Smooth a population of spike events into an array.
+
+    This transformer converts a table of spike times into a trace of smoothed
+    spike values. Spikes are binned according to the spike_times argument.
+
+    Parameters
+    ----------
+
+    sample_times : array-like
+        The samples times that will be used to bin spikes.
+
+    Attributes
+    ----------
+
+
+    Examples
+    --------
+
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> from neuroglia.spike import Binner
+    >>> binner = Binner(np.arange(0,1.0,0.001))
+    >>> spikes = pd.DataFrame({'times':np.random.rand})
+    >>> X = binner.fit_transform(spikes)
+
+    See also
+    --------
+
+    neuroglia.spike.Smoother
+    neuroglia.nwb.SpikeTablizer
+
+    """
     def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU):
 
         self.sample_times = sample_times
@@ -51,6 +140,21 @@ class Smoother(BaseEstimator,TransformerMixin):
         self.tau = tau
 
     def fit(self, X, y=None):
+        """ Do nothing an return the estimator unchanged.
+
+        This method is just there to implement the usual API and hence work in pipelines.
+
+        Parameters
+        ----------
+
+        X : pandas DataFrame with columns ['time','neuron']
+        y : (ignored)
+
+        Returns
+        -------
+
+        self
+        """
         return self
 
     def __make_trace(self,neuron_spikes):

@@ -1,0 +1,5 @@
+-r requirements.txt
+sphinx
+sphinx-gallery
+sphinx_bootstrap_theme
+seaborn

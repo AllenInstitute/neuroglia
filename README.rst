@@ -3,20 +3,21 @@
 neuroglia
 =========
 
+more than just glue. scikit-learn compatible transformers for neural data science
+
 .. image:: https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=svg&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13
     :target: https://circleci.com/gh/AllenInstitute/neuroglia
+
 
 What is neuroglia?
 ------------------
 
-scikit-learn compatible transformers for neurophysiology data
-
 Things you can do:
 
 - make a PSTH
-- extract events from a calcium signal
-- synthesize a calcium signal
 - infer spikes from a calcium signal
+- smooth a spiketrain
+- chain these things together into scikit-learn pipelines
 
 Installation
 ------------
@@ -30,12 +31,17 @@ Requirements
 -  scikit-learn
 -  xarray
 
-## Level of Support
-We are planning on occasional updating this tool with no fixed schedule. Community involvement is encouraged through both issues and pull requests.  Please make pull requests against the dev branch, as we will test changes there before merging into master.
+Level of Support
+------------
+We are planning on occasional updating this tool with no fixed schedule. Community involvement is encouraged through both issues and pull requests.
 
-## License
+License
+-------
+
+TBD
 
 
-## Authors
+Authors
+--------
 
 .. include:: ../AUTHORS.rst
