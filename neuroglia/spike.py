@@ -81,7 +81,6 @@ class Binner(BaseEstimator,TransformerMixin):
         ----------
         X : pandas DataFrame with columns ['time','neuron']
             spike times that will be binned
-        y : (ignored)
 
         Returns
         -------
@@ -183,7 +182,6 @@ class Smoother(BaseEstimator,TransformerMixin):
         ----------
         X : pandas DataFrame with columns ['time','neuron']
             spike times that will be binned
-        y : (ignored)
 
         Returns
         -------
