@@ -185,6 +185,16 @@ class WhenTrueFinder(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self,X):
+        """Find times when trace is greater than zero
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` strcutre [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame with columns ['time','neuron']
+        """
         return (X[X > 0]
             .stack()
             .reset_index()[['level_0','level_1']]
