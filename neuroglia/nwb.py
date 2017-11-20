@@ -25,6 +25,13 @@ class SpikeTablizer(BaseEstimator,TransformerMixin):
 
     neuroglia.spike.Smoother
     neuroglia.spike.Binner
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+
     """
     def __init__(self):
         pass

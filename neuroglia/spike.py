@@ -42,6 +42,13 @@ class Binner(BaseEstimator,TransformerMixin):
     neuroglia.spike.Smoother
     neuroglia.nwb.SpikeTablizer
 
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+
     """
     def __init__(self,sample_times):
         self.sample_times = sample_times
@@ -131,6 +138,12 @@ class Smoother(BaseEstimator,TransformerMixin):
     neuroglia.spike.Binner
     neuroglia.nwb.SpikeTablizer
 
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    
     """
     def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU):
 
