@@ -5,6 +5,7 @@ import numpy as np
 import numpy.testing as npt
 import xarray.testing as xrt
 
+from neuroglia.spike import Smoother
 from neuroglia.event import PeriEventTraceSampler, PeriEventSpikeSampler
 
 from sklearn.base import clone
@@ -48,7 +49,7 @@ def test_PeriEventTraceSampler_dims():
     clone(tensorizer)
 
 def test_PeriEventSpikeSampler():
-    tensorizer = PeriEventSpikeSampler(SPIKES,sample_times=TS)
+    tensorizer = PeriEventSpikeSampler(SPIKES,sample_times=TS,sampler=Smoother)
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,SPIKES['neuron'].unique())

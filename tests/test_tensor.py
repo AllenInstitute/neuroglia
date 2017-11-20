@@ -27,7 +27,7 @@ TENSOR = xr.DataArray(
 )
 
 def test_ResponseReducer_smoke():
-    extractor = ResponseReducer()
+    extractor = ResponseReducer(func=np.mean)
     responses = extractor.fit_transform(TENSOR)
 
     npt.assert_array_equal(responses['event'],LBL)

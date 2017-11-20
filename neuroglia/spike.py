@@ -42,6 +42,13 @@ class Binner(BaseEstimator,TransformerMixin):
     neuroglia.spike.Smoother
     neuroglia.nwb.SpikeTablizer
 
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+
     """
     def __init__(self,sample_times):
         self.sample_times = sample_times
@@ -49,7 +56,8 @@ class Binner(BaseEstimator,TransformerMixin):
     def fit(self, X, y=None):
         """ Do nothing an return the estimator unchanged.
 
-        This method is just there to implement the usual API and hence work in pipelines.
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
 
         Parameters
         ----------
@@ -80,7 +88,6 @@ class Binner(BaseEstimator,TransformerMixin):
         ----------
         X : pandas DataFrame with columns ['time','neuron']
             spike times that will be binned
-        y : (ignored)
 
         Returns
         -------
@@ -120,17 +127,23 @@ class Smoother(BaseEstimator,TransformerMixin):
 
     >>> import numpy as np
     >>> import pandas as pd
-    >>> from neuroglia.spike import Binner
-    >>> binner = Binner(np.arange(0,1.0,0.001))
+    >>> from neuroglia.spike import Smoother
+    >>> smoother = Smoother(np.arange(0,1.0,0.001))
     >>> spikes = pd.DataFrame({'times':np.random.rand})
     >>> X = binner.fit_transform(spikes)
 
     See also
     --------
 
-    neuroglia.spike.Smoother
+    neuroglia.spike.Binner
     neuroglia.nwb.SpikeTablizer
 
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    
     """
     def __init__(self,sample_times,kernel='gaussian',tau=DEFAULT_TAU):
 
@@ -142,7 +155,8 @@ class Smoother(BaseEstimator,TransformerMixin):
     def fit(self, X, y=None):
         """ Do nothing an return the estimator unchanged.
 
-        This method is just there to implement the usual API and hence work in pipelines.
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
 
         Parameters
         ----------
@@ -157,7 +171,7 @@ class Smoother(BaseEstimator,TransformerMixin):
         """
         return self
 
-    def __make_trace(self,neuron_spikes):
+    def _make_trace(self,neuron_spikes):
         neuron = get_neuron(neuron_spikes)
 
         kernel_func = lambda spike: KERNELS[self.kernel](loc=spike,scale=self.tau)
@@ -175,7 +189,20 @@ class Smoother(BaseEstimator,TransformerMixin):
             )
 
     def transform(self, X):
-        traces = X.groupby('neuron').apply(self.__make_trace).T
+        """ Smooth each neuron's spikes into a trace of smoothed spikes.
+
+        Parameters
+        ----------
+        X : pandas DataFrame with columns ['time','neuron']
+            spike times that will be binned
+
+        Returns
+        -------
+        Xt : pandas DataFrame of smoothed spikes
+            Columns are neuron labels and the index is the left edge of the
+            sample time.
+        """
+        traces = X.groupby('neuron').apply(self._make_trace).T
         if len(traces)==0:
             traces = pd.DataFrame(index=self.sample_times)
         return traces
