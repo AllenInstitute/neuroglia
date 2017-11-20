@@ -143,3 +143,53 @@ class OASISInferer(BaseEstimator, TransformerMixin):
                 raise NotImplementedError
 
         return X_new
+
+
+def normalize_trace(trace, window=3, percentile=8):
+    """ normalized the trace by substracting off a rolling baseline
+
+
+    Parameters
+    ---------
+    trace: pd.Series with time as index
+    window: float
+        time in minutes
+    percentile: int
+        percentile to subtract off
+    """
+
+    sampling_rate = np.diff(trace.index).mean()
+    window = int(np.ceil(window/sampling_rate))
+
+    p = lambda x: np.percentile(x,percentile) # suggest 8% in literature, but this doesnt work well for our data, use median
+    baseline = trace.rolling(window=window,center=True).apply(func=p)
+    baseline = baseline.fillna(method='bfill')
+    baseline = baseline.fillna(method='ffill')
+    dF = trace - baseline
+    dFF = dF / baseline
+
+    return dFF
+
+
+class Normalize(BaseEstimator,TransformerMixin):
+    """docstring for Normalize."""
+    def __init__(self, window=3.0, percentile=8):
+        super(Normalize, self).__init__()
+        self.window = window
+        self.percentile = percentile
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self,X):
+        # this is where the magic happens
+
+        df_norm = pd.DataFrame()
+        for col in X.columns:
+            df_norm[col] = normalize_trace(
+                trace=X[col],
+                window=self.window,
+                percentile=self.percentile,
+                )
+
+        return df_norm
