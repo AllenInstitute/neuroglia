@@ -144,31 +144,6 @@ class OASISInferer(BaseEstimator, TransformerMixin):
 
         return X_new
 
-class TraceTablizer(TransformerMixin):
-    """SM: same as SpikeTabilizer, but for calcium traces from roi_traces.h5 or dff.h5 files
-    converts an array of traces in the form of [[neuron0][neuron1]...[neuronN]] to a dataframe
-    with "neuron" and "time" columns, sorted by "time" (in seconds)
-    """
-    def __init__(self):
-        super(TraceTablizer, self).__init__()
-
-    def fit(self, X, y=None):       # pragma: no cover
-        return self
-
-    def transform(self, X):
-        f = h5py.File(X, 'r')
-        data = np.asarray(f['data'])
-        f.close()
-
-        whole_seconds = int(len(data[0]) / 30)
-        frame_dif = (len(data[0]) - (whole_seconds * 30))
-
-        split_data = [np.split(data[x][frame_dif:], whole_seconds) for x in range(len(data))]
-        data_s = [[np.mean(y) for y in split_data[x]] for x in range(len(split_data))]
-
-        df = pd.DataFrame(data_s).transpose()
-        return df
-
 
 def normalize_trace(trace, window=3, percentile=8):
     """ normalized the trace by substracting off a rolling baseline
@@ -181,7 +156,7 @@ def normalize_trace(trace, window=3, percentile=8):
         time in minutes
     percentile: int
         percentile to subtract off
-    """ 
+    """
 
     sampling_rate = np.diff(trace.index).mean()
     window = int(np.ceil(window/sampling_rate))
@@ -192,7 +167,7 @@ def normalize_trace(trace, window=3, percentile=8):
     baseline = baseline.fillna(method='ffill')
     dF = trace - baseline
     dFF = dF / baseline
-    
+
     return dFF
 
 
@@ -202,18 +177,18 @@ class Normalize(BaseEstimator,TransformerMixin):
         super(Normalize, self).__init__()
         self.window = window
         self.percentile = percentile
-        
+
     def fit(self, X, y=None):
         return self
-    
+
     def transform(self,X):
         # this is where the magic happens
 
         df_norm = pd.DataFrame()
         for col in X.columns:
             df_norm[col] = normalize_trace(
-                trace=X[col], 
-                window=self.window, 
+                trace=X[col],
+                window=self.window,
                 percentile=self.percentile,
                 )
 
