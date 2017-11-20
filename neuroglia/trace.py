@@ -25,9 +25,6 @@ class Binarizer(BaseEstimator, TransformerMixin):
     Notes
     -----
 
-    If the input is a sparse matrix, only the non-zero values are subject
-    to update by the Binarizer class.
-
     This estimator is stateless (besides constructor parameters), the
     fit method does nothing but is useful when used in a pipeline.
     """
@@ -107,23 +104,84 @@ def edge_detector(X,falling=False):
         return X
 
 class EdgeDetector(BaseEstimator,TransformerMixin):
-    """docstring for EdgeDetector."""
+    """Detect rising or falling edges in a trace
+
+    This transformer detects edges in a trace, where the value of an observation
+    is higher (by default) or lower (if falling=True) than the prior
+    observation.
+
+    Parameters
+    ----------
+    falling : boolean, optional (False by default)
+        Setting this parameter to True will detect falling edges
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    """
     def __init__(self, falling=False):
         self.falling = falling
 
     def fit(self,X,y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
+        """Detect Edges in each trace
 
+        Parameters
+        ----------
+        X : DataFrame in `traces` strcutre [n_samples, n_traces]
+        """
         return edge_detector(X,self.falling)
 
 class WhenTrueFinder(BaseEstimator,TransformerMixin):
-    """docstring for WhenTrueFinder."""
+    """Finds times when a trace is non-negative
+
+    This transformer returns a list of events, shaped like a spike table.
+
+    This is useful, for example, for constructing a spike table from inferred
+    spike events.
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    """
     def __init__(self):
         pass
 
     def fit(self,X,y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
