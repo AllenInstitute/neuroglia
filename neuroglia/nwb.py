@@ -72,5 +72,5 @@ class SpikeTablizer(BaseEstimator,TransformerMixin):
                 population['neuron'].append(n)
                 population['time'].append(t)
         df = pd.DataFrame(population).sort_values('time')
-        # df.set_index(['time'], inplace=True)
+        df.reset_index(drop=True, inplace=True)
         return df
