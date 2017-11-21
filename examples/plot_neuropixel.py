@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 natural scene decoding from V1
 ==============================
@@ -32,19 +33,17 @@ print(events.head())
 
 
 from neuroglia.nwb import SpikeTablizer
-spikes = SpikeTablizer().fit_transform(ephys_data['spiketimes']).reset_index()
+spikes = SpikeTablizer().fit_transform(ephys_data['spiketimes'])
 print(spikes.head())
 
 ####################################
 # Now, we'll sample spikes near each event & build this into a xarray 3D tensor
 
 from neuroglia.event import PeriEventSpikeSampler
-from neuroglia.spike import Binner
 import numpy as np
 spike_sampler = PeriEventSpikeSampler(
     spikes=spikes,
     sample_times=np.arange(0.1,0.35,0.01),
-    tracizer=Binner,
 )
 tensor = spike_sampler.fit_transform(events)
 print(tensor)
@@ -53,7 +52,8 @@ print(tensor)
 # We can get the average elicited spike count with the `ResponseReducer`
 
 from neuroglia.tensor import ResponseReducer
-reducer = ResponseReducer(method='mean')
+import numpy as np
+reducer = ResponseReducer(func=np.mean)
 means = reducer.fit_transform(tensor)
 print(means)
 
@@ -65,16 +65,26 @@ from sklearn.pipeline import Pipeline
 from sklearn.neighbors import KNeighborsClassifier
 
 pipeline = Pipeline([
-    ('spike_sampler',PeriEventSpikeSampler(spikes=spikes,sample_times=np.arange(0.1,0.35,0.01),tracizer=Binner)),
-    ('extract', ResponseReducer(method=np.mean)),
+    ('spike_sampler',PeriEventSpikeSampler(spikes=spikes,sample_times=np.arange(0.1,0.35,0.01))),
+    ('extract', ResponseReducer(func=np.mean)),
     ('classify', KNeighborsClassifier()),
 ])
 
 ####################################
-# Finally, we can do a 3-fold cross validation on the entire pipeline with
-# `cross_val_score`
-# ::
-#   from sklearn.model_selection import cross_val_score
-#   scores = cross_val_score(pipeline, spikes, events['image_id'], cv=3)
-#   n_images = len(events['image_id'].unique())
-#   print(scores*n_images)
+# Now we can train the full pipeline on the training set
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    events, events['image_id'],test_size=0.33,
+)
+
+pipeline.fit(X_train,y_train)
+
+####################################
+# Finally we'll test the pipeline on the held out data
+
+score = pipeline.score(X_test,y_test)
+
+n_images = len(events['image_id'].unique())
+print(score*n_images)
