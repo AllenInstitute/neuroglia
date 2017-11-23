@@ -5,19 +5,25 @@ from scipy.signal import medfilt, savgol_filter
 
 
 class MedianFilterDetrender(BaseEstimator, TransformerMixin):
-    """
-    Median filter detrending
+    """Detrend the calcium signal using the local median
+
+    Parameters
+    ----------
+    window : int, optional (default: 101)
+        Number of samples to use to compute local median
+    peak_std_threshold : float, optional (default: 4.0)
+        If the median exceeds this threshold, it will be capped at this level.
+
     """
     def __init__(self,
         window=101,
-        peak_std_threshold=4):
+        peak_std_threshold=4.0):
 
         self.window = window
         self.peak_std_threshold = peak_std_threshold
 
     def _robust_std(self, x):
-        '''
-        Robust estimate of std
+        '''Robust estimate of std
         '''
         MAD = np.median(np.abs(x - np.median(x)))
         return 1.4826*MAD
@@ -40,6 +46,17 @@ class MedianFilterDetrender(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self,X):
+        """Detrend each column of X
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame in `traces` structure [n_samples, n_traces]
+            The detrended data.
+        """
         self.fit_params = {}
         X_new = X.copy()
         for col in X.columns:
@@ -53,8 +70,15 @@ class MedianFilterDetrender(BaseEstimator, TransformerMixin):
 
 
 class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
-    """
-    Savitzky-Golay filter detrending
+    """Detrend the calcium signal using a Savitzky-Golay filter
+
+    Parameters
+    ----------
+    window : int, optional (default: 201)
+        Number of samples to use to build the Savitzky-Golay filter
+    order : int, optional (default: 3)
+        Order of the Savitzky-Golay filter
+
     """
     def __init__(self,
         window=201,
@@ -81,6 +105,17 @@ class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self,X):
+        """Detrend each column of X
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame in `traces` structure [n_samples, n_traces]
+            The detrended data.
+        """
         self.fit_params = {}
         X_new = X.copy()
         for col in X.columns:
@@ -93,8 +128,23 @@ class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
 
 
 class EventRescaler(BaseEstimator, TransformerMixin):
-    """
-    rescale events
+    """Rescale detected calcium events
+
+    Rescaling and log-transforming the output of the CalciumDeconvolver may
+    yield values closer to the number of spikes elicited in a sample bin
+
+    This transformer multiplies the input values by `scale` then, if
+    `log_transform` is `True`, adds 1 and log-transforms the data.
+
+    That is, if log_transform is True, it returns `np.log(1.0 + scale * X)`,
+    else it returns `scale * X`
+
+    Parameters
+    ----------
+    log_transform : boolean, optional (default: True)
+        Perform the log transform
+    scale : float, optional (default: 5.0)
+        Value to rescale the data before the log_transform
     """
     def __init__(self,log_transform=True,scale=5):
 
@@ -119,6 +169,17 @@ class EventRescaler(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self,X):
+        """Rescale events in X
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame in `traces` structure [n_samples, n_traces]
+            The rescaled data.
+        """
         X_new = X.copy()
         for col in X.columns:
             tmp_data = X[col].values.astype(np.double)
@@ -275,7 +336,14 @@ def normalize_trace(trace, window=3, percentile=8):
 
 
 class Normalize(BaseEstimator,TransformerMixin):
-    """ Calculate rolling dF/F
+    """ Normalize the trace by a rolling baseline (that is, calculate dF/F)
+
+    Parameters
+    ---------
+    window: float, optional (default: 3.0)
+        time in minutes
+    percentile: int, optional (default: 8)
+        percentile to subtract off
     """
     def __init__(self, window=3.0, percentile=8):
         self.window = window
@@ -299,8 +367,17 @@ class Normalize(BaseEstimator,TransformerMixin):
         return self
 
     def transform(self,X):
-        # this is where the magic happens
+        """Normalize each column of X
 
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame in `traces` structure [n_samples, n_traces]
+            The normalized calcium traces.
+        """
         df_norm = pd.DataFrame()
         for col in X.columns:
             df_norm[col] = normalize_trace(
