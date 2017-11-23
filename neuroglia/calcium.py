@@ -23,6 +23,20 @@ class MedianFilterDetrender(BaseEstimator, TransformerMixin):
         return 1.4826*MAD
 
     def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
@@ -50,6 +64,20 @@ class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
         self.order = order
 
     def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
@@ -74,6 +102,20 @@ class EventRescaler(BaseEstimator, TransformerMixin):
         self.scale = scale
 
     def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
@@ -89,7 +131,7 @@ class EventRescaler(BaseEstimator, TransformerMixin):
 
 
 
-def oasis_kwargs(penalty,indicator):
+def oasis_kwargs(penalty=None,model=None):
 
     kwargs = {}
 
@@ -97,31 +139,84 @@ def oasis_kwargs(penalty,indicator):
         kwargs.update(penalty=0)
     elif penalty=='l1':
         kwargs.update(penalty=1)
-    # elif penalty=='l2':
-    #     kwargs.update(penalty=2)
 
-    if indicator.lower()=='gcamp6f':
+    if model.lower()=='exponential':
         kwargs.update(g=(None,))
-    elif indicator.lower()=='gcamp6s':
+    elif model.lower()=='double_exponential':
         kwargs.update(g=(None,None))
 
     return kwargs
 
 
 class CalciumDeconvolver(BaseEstimator, TransformerMixin):
-    """docstring for OASISInferer."""
-    def __init__(self,penalty='l0',indicator='GCaMP6f'):
+    """Deconvolve calcium traces to detect putative spiking events
+
+    This transformer deconvolves each trace to yield a sparse trace where each
+    bin is weighted according to the likelihood of spiking events.
+
+    We use the OASIS algorithm from https://github.com/j-friedrich/OASIS/
+
+    Note: you must install OASIS for `CalciumDeconvolver` to work.
+
+    ::
+        pip install cython
+        pip install git+https://github.com/j-friedrich/OASIS.git
+
+    Parameters
+    ----------
+    penalty : {'l0', 'l1'}
+        Specify the norm used in the penalization when fitting.
+    model : {'exponential','double_exponential'}
+        What type of model to fit for the calcium dynamics. Typically, a fast
+        calcium indicator can be fit with the single 'exponential' model,
+        whereas an indicator with a slow rise will benefit from using the
+        'double_exponential' model, which fits an exponential to the rise time
+        of the calcium response as well.
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    """
+    def __init__(self,penalty='l0',model='exponential',threshold=0.001):
         self.penalty = penalty
-        self.indicator = indicator
+        self.model = model
+        self.threshold = threshold
 
     def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
+        """Deconvolve each column of X
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        Xt : DataFrame in `traces` structure [n_samples, n_traces]
+            The deconvolved data events.
+        """
 
         kwargs = oasis_kwargs(
             self.penalty,
-            self.indicator,
+            self.model,
             )
 
         X_new = X.copy()
@@ -135,6 +230,22 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin):
             X_new[col] = spikes
 
         return X_new
+
+    def predict(self,X):
+        """Find spikes
+
+        Parameters
+        ----------
+        X : DataFrame in `traces` structure [n_samples, n_traces]
+
+        Returns
+        -------
+        y : DataFrame in `traces` structure [n_samples, n_traces]
+            Predicted spike events.
+        """
+        y = self.transform(X) > self.threshold
+        return y
+
 
 
 def normalize_trace(trace, window=3, percentile=8):
@@ -164,13 +275,27 @@ def normalize_trace(trace, window=3, percentile=8):
 
 
 class Normalize(BaseEstimator,TransformerMixin):
-    """docstring for Normalize."""
+    """ Calculate rolling dF/F
+    """
     def __init__(self, window=3.0, percentile=8):
-        super(Normalize, self).__init__()
         self.window = window
         self.percentile = percentile
 
     def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
         return self
 
     def transform(self,X):
