@@ -304,7 +304,7 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
         y : DataFrame in `traces` structure [n_samples, n_traces]
             Predicted spike events.
         """
-        y = self.transform(X) > self.threshold
+        y = (self.transform(X) > self.threshold).astype(int)
         return y
 
 
