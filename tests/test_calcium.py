@@ -41,6 +41,10 @@ def test_CalciumDeconvolver():
     deconvolver = CalciumDeconvolver()
     tmp = deconvolver.fit_transform(DFF)
     assert np.all(np.array([np.corrcoef(true_s[n], np.array(tmp[a]))[0][1] for n,a in zip(range(3), LBL)]) > 0.6)
+
+    acc = deconvolver.score(DFF,true_s.T>deconvolver.threshold)
+    print(acc)
+    
     clone(deconvolver)
 
 

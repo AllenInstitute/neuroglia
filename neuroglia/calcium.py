@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 from oasis.functions import deconvolve
 from scipy.signal import medfilt, savgol_filter
 
@@ -148,7 +148,7 @@ def oasis_kwargs(penalty=None,model=None):
     return kwargs
 
 
-class CalciumDeconvolver(BaseEstimator, TransformerMixin):
+class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
     """Deconvolve calcium traces to detect putative spiking events
 
     This transformer deconvolves each trace to yield a sparse trace where each
