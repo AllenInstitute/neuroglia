@@ -1,6 +1,13 @@
 import numpy as np
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-from oasis.functions import deconvolve
+
+try:
+    from oasis.functions import deconvolve
+except:
+    raise ImportError(
+        "https://github.com/j-friedrich/OASIS.git is required for calcium"
+    )
+
 from scipy.signal import medfilt, savgol_filter
 
 
