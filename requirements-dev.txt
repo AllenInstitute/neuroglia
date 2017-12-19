@@ -2,3 +2,4 @@
 cython
 pytest
 pytest-cov
+bumpversion>=0.5.3
