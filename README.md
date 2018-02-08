@@ -4,11 +4,8 @@
 Neuroglia is a Python machine learning library for neurophysiology data.
 It provide a scikit-learn compatible transformers for extracting features from extracellular electrophysiology & optical physiology data for machine learning pipelines.
 
-[![Build Status](https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=sheild&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13)](https://circleci.com/gh/AllenInstitute/neuroglia)
-
-## Documentation
-
-[http://neuroglia.readthedocs.io](neuroglia.readthedocs.io)
+[![CircleCI](https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=shield&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13)](https://circleci.com/gh/AllenInstitute/neuroglia)
+[![Documentation Status](https://readthedocs.org/projects/neuroglia/badge/?version=latest)](http://neuroglia.readthedocs.io/en/latest/?badge=latest)
 
 ## Installation
 
@@ -24,7 +21,10 @@ We are planning on occasional updating this tool with no fixed schedule. Communi
 
 ## Authors
 
+### Development Lead
 - Justin Kiggins
+
+### Contributors
 - Nicholas Cain
 - Michael Oliver
 - Sahar Manavi
