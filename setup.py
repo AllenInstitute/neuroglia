@@ -9,7 +9,6 @@ setuptools.setup(
     author_email="justink@alleninstitute.org",
 
     description="scikit-learn compatible transformers for neural data science",
-    long_description=open('README.rst').read(),
 
     packages=setuptools.find_packages(),
 
