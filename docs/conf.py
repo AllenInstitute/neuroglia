@@ -126,7 +126,7 @@ sphinx_gallery_conf = {
     # # this case sphinx_gallery and numpy in a tuple of strings.
     # 'doc_module': ('neuroglia',),
     'download_section_examples': False,
-    'default_thumb_file': 'http://observatory.brain-map.org/external/neuralcoding/prod6/specimen_496001358/ophys_experiment_502205092/processed/max_downsample_4Hz_0.png',
+    'default_thumb_file': '_static/max_proj.png',
     'min_reported_time': 10,
     }
 
