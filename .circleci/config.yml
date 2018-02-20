@@ -1,9 +1,9 @@
-run-style-check: &run-style-check
-  name: Run Style Checks
-  command: |
-    . ../venv/bin/activate
-    pip install flake8
-    flake8
+# run-style-check: &run-style-check
+#   name: Run Style Checks
+#   command: |
+#     . ../venv/bin/activate
+#     pip install flake8
+#     flake8
 
 initialize-venv: &initialize-venv
   name: Initialize Virtual Environment
@@ -79,15 +79,15 @@ conda-steps: &conda-steps
 
 version: 2
 jobs:
-  flake8:
-    docker:
-      - image: circleci/python:3.6.3-jessie
-    steps:
-      - checkout
-      - run:
-          <<: *initialize-venv
-      - run:
-          <<: *run-style-check
+  # flake8:
+  #   docker:
+  #     - image: circleci/python:3.6.3-jessie
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         <<: *initialize-venv
+  #     - run:
+  #         <<: *run-style-check
   python27:
     docker:
       - image: circleci/python:2.7.14-jessie
@@ -144,7 +144,7 @@ workflows:
   version: 2
   test-package-publish:
     jobs:
-      - flake8
+      # - flake8
       - python27
       - python35
       - python36
