@@ -1,13 +1,12 @@
-import numpy as np
 import pandas as pd
 import xarray as xr
 
-from sklearn.base import BaseEstimator,TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin
 
 from .utils import create_interpolator, events_to_xr_dim
 from .spike import Binner, DEFAULT_TAU
 
-class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
+class PeriEventTraceSampler(BaseEstimator, TransformerMixin):
     """Take event-aligned samples of traces from a population of neurons.
 
     Traces are sampled relative to the event time. There is no enforced
@@ -17,9 +16,10 @@ class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
 
     Parameters
     ----------
-    traces : pandas DataFrame with 'time' as the index and neuron IDs in columns
-        The traces that will be sampled from when the transform method is called
-    sample_times : array
+    traces : pandas.DataFrame
+        The traces that will be sampled from when the transform method is
+        called. Expected: 'time' as the index and neuron IDs in columns.
+    sample_times : numpy array
         Time relative to events that will be used to sample or bin spikes.
 
     Notes
@@ -34,7 +34,7 @@ class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
 
     def _make_splined_traces(self):
         self.splined_traces_ = self.traces.apply(
-            lambda y: create_interpolator(self.traces.index,y),
+            lambda y: create_interpolator(self.traces.index, y),
             axis=0,
         )
 
@@ -72,25 +72,28 @@ class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
         def extractor(ev):
             t = self.sample_times + ev['time']
             interpolated = self.splined_traces_.apply(
-                lambda s: pd.Series(s(t),index=self.sample_times)
+                lambda s: pd.Series(s(t), index=self.sample_times)
                 )
-            return xr.DataArray(interpolated.T,dims=['sample_times','neuron'])
+            return xr.DataArray(
+                interpolated.T,
+                dims=['sample_times', 'neuron'],
+                )
 
         # do the extraction
-        tensor = [extractor(ev) for _,ev in X.iterrows()]
+        tensor = [extractor(ev) for _, ev in X.iterrows()]
         concat_dim = events_to_xr_dim(X)
 
         # concatenate the DataArrays into a single DataArray
-        return xr.concat(tensor,dim=concat_dim)
+        return xr.concat(tensor, dim=concat_dim)
 
 
-class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
+class PeriEventSpikeSampler(BaseEstimator, TransformerMixin):
     """Take event-aligned samples of spikes from a population of neurons.
 
     Parameters
     ----------
     spikes : pandas DataFrame with columns ['time','neurons']
-        The spikes that will be sampled from when the transform method is called
+        The spikes that will be sampled from
     sample_times : array
         Time relative to events that will be used to sample or bin spikes.
     fillna : boolean, optional (default: True)
@@ -107,7 +110,14 @@ class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
     This estimator is stateless (besides constructor parameters), the
     fit method does nothing but is useful when used in a pipeline.
     """
-    def __init__(self, spikes, sample_times, fillna=True, sampler=None,sampler_kwargs=None):
+    def __init__(
+        self,
+        spikes,
+        sample_times,
+        fillna=True,
+        sampler=None,
+        sampler_kwargs=None,
+    ):
         self.spikes = spikes
         self.sample_times = sample_times
         self.fillna = fillna
@@ -159,7 +169,8 @@ class PeriEventSpikeSampler(BaseEstimator,TransformerMixin):
             stop = t[-1] + 10*DEFAULT_TAU
 
             local_mask = (
-                (self.spikes['time']>start) & (self.spikes['time']<stop) # TODO: replace with np.search_sorted to speed up this query
+                (self.spikes['time'] > start)
+                & (self.spikes['time'] < stop)  # TODO: replace with np.search_sorted to speed up this query
             )
             local_spikes = self.spikes[local_mask]
 

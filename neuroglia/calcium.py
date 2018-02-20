@@ -1,11 +1,12 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
 
 try:
     from oasis.functions import deconvolve
-except:
+except ImportError as e:
     raise ImportError(
-        "https://github.com/j-friedrich/OASIS.git is required for calcium"
+        "https://github.com/j-friedrich/OASIS.git is required for calcium",
     )
 
 from scipy.signal import medfilt, savgol_filter
@@ -22,9 +23,11 @@ class MedianFilterDetrender(BaseEstimator, TransformerMixin):
         If the median exceeds this threshold, it will be capped at this level.
 
     """
-    def __init__(self,
+    def __init__(
+        self,
         window=101,
-        peak_std_threshold=4.0):
+        peak_std_threshold=4.0,
+    ):
 
         self.window = window
         self.peak_std_threshold = peak_std_threshold
@@ -52,7 +55,7 @@ class MedianFilterDetrender(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self,X):
+    def transform(self, X):
         """Detrend each column of X
 
         Parameters
@@ -87,9 +90,11 @@ class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
         Order of the Savitzky-Golay filter
 
     """
-    def __init__(self,
+    def __init__(
+        self,
         window=201,
-        order=3):
+        order=3,
+    ):
 
         self.window = window
         self.order = order
@@ -111,7 +116,7 @@ class SavGolFilterDetrender(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self,X):
+    def transform(self, X):
         """Detrend each column of X
 
         Parameters
@@ -153,7 +158,7 @@ class EventRescaler(BaseEstimator, TransformerMixin):
     scale : float, optional (default: 5.0)
         Value to rescale the data before the log_transform
     """
-    def __init__(self,log_transform=True,scale=5):
+    def __init__(self, log_transform=True, scale=5):
 
         self.log_transform = log_transform
         self.scale = scale
@@ -175,7 +180,7 @@ class EventRescaler(BaseEstimator, TransformerMixin):
         """
         return self
 
-    def transform(self,X):
+    def transform(self, X):
         """Rescale events in X
 
         Parameters
@@ -198,20 +203,19 @@ class EventRescaler(BaseEstimator, TransformerMixin):
         return X_new
 
 
-
-def oasis_kwargs(penalty=None,model=None):
+def oasis_kwargs(penalty=None, model=None):
 
     kwargs = {}
 
-    if penalty=='l0':
+    if penalty == 'l0':
         kwargs.update(penalty=0)
-    elif penalty=='l1':
+    elif penalty == 'l1':
         kwargs.update(penalty=1)
 
-    if model.lower()=='exponential':
+    if model.lower() == 'exponential':
         kwargs.update(g=(None,))
-    elif model.lower()=='double_exponential':
-        kwargs.update(g=(None,None))
+    elif model.lower() == 'double_exponential':
+        kwargs.update(g=(None, None))
 
     return kwargs
 
@@ -247,7 +251,7 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
     This estimator is stateless (besides constructor parameters), the
     fit method does nothing but is useful when used in a pipeline.
     """
-    def __init__(self,penalty='l0',model='exponential',threshold=0.001):
+    def __init__(self, penalty='l0', model='exponential', threshold=0.001):
         self.penalty = penalty
         self.model = model
         self.threshold = threshold
@@ -269,7 +273,7 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
         """
         return self
 
-    def transform(self,X):
+    def transform(self, X):
         """Deconvolve each column of X
 
         Parameters
@@ -294,12 +298,12 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
             denoised, spikes, b, g, lam = deconvolve(
                 X[col].values.astype(np.double),
                 **kwargs)
-            self.fit_params[col] = dict(b=b,g=g,lam=lam,)
+            self.fit_params[col] = dict(b=b, g=g, lam=lam,)
             X_new[col] = spikes
 
         return X_new
 
-    def predict(self,X):
+    def predict(self, X):
         """Find spikes
 
         Parameters
@@ -313,7 +317,6 @@ class CalciumDeconvolver(BaseEstimator, TransformerMixin, ClassifierMixin):
         """
         y = (self.transform(X) > self.threshold).astype(int)
         return y
-
 
 
 def normalize_trace(trace, window=3, percentile=8):
@@ -332,8 +335,9 @@ def normalize_trace(trace, window=3, percentile=8):
     sampling_rate = np.diff(trace.index).mean()
     window = int(np.ceil(window/sampling_rate))
 
-    p = lambda x: np.percentile(x,percentile) # suggest 8% in literature, but this doesnt work well for our data, use median
-    baseline = trace.rolling(window=window,center=True).apply(func=p)
+    def p(x):
+        return np.percentile(x, percentile)  # suggest 8% in literature
+    baseline = trace.rolling(window=window, center=True).apply(func=p)
     baseline = baseline.fillna(method='bfill')
     baseline = baseline.fillna(method='ffill')
     dF = trace - baseline
@@ -342,7 +346,7 @@ def normalize_trace(trace, window=3, percentile=8):
     return dFF
 
 
-class Normalize(BaseEstimator,TransformerMixin):
+class Normalize(BaseEstimator, TransformerMixin):
     """ Normalize the trace by a rolling baseline (that is, calculate dF/F)
 
     Parameters
@@ -373,7 +377,7 @@ class Normalize(BaseEstimator,TransformerMixin):
         """
         return self
 
-    def transform(self,X):
+    def transform(self, X):
         """Normalize each column of X
 
         Parameters
