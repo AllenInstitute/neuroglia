@@ -128,6 +128,15 @@ sphinx_gallery_conf = {
     'download_section_examples': False,
     'default_thumb_file': '_static/max_proj.png',
     'min_reported_time': 10,
+
+    'binder': {
+        'org': 'AllenInstitute',
+        'repo': 'http://neuroglia.readthedocs.io',
+        'url': 'https://mybinder.org',
+        'branch': 'master',
+        'dependencies': './binder/requirements.txt',
+        }
+
     }
 
 
