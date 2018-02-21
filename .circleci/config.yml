@@ -1,106 +1,153 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
+# run-style-check: &run-style-check
+#   name: Run Style Checks
+#   command: |
+#     . ../venv/bin/activate
+#     pip install flake8
+#     flake8
+
+initialize-venv: &initialize-venv
+  name: Initialize Virtual Environment
+  command: |
+    python -m virtualenv ../venv || python -m venv ../venv
+    . ../venv/bin/activate
+
+# publish-prerelease-on-github: &publish-prerelease-on-github
+#   name: Publish wheel and source distribution on github
+#   command: |
+#     if [[ "${CIRCLE_BRANCH}" == "dev" && "${UPLOAD_WHEELS}" == "true" ]]; then
+#       . ../venv/bin/activate
+#       pip install -U scikit-ci-addons
+#       ci_addons publish_github_release NeurodataWithoutBorders/pynwb  \
+#           --prerelease-packages "dist/*" \
+#           --prerelease-sha dev \
+#           --prerelease-packages-clear-pattern "*" \
+#           --prerelease-packages-keep-pattern "*dev<COMMIT_DISTANCE>*" \
+#           --re-upload \
+#           --exit-success-if-missing-token
+#     fi
+
+ci-steps: &ci-steps
+  steps:
+    - checkout
+    - run:
+        <<: *initialize-venv
+    - run:
+        name: Run the tests
+        command: |
+          . ../venv/bin/activate
+          pip install tox
+          tox -e $TEST_TOX_ENV
+        # Install is expected to be quick. Increase timeout in case there are some network issues.
+        # While pip installing tox does not output by default. Circle thinks task is dead after 10 min.
+        no_output_timeout: 30m
+    # - run:
+    #     name: Run coverage and submit to codecov-io
+    #     command: |
+    #       . ../venv/bin/activate
+    #       tox -e $COVERAGE_TOX_ENV
+    - run:
+        name: Build wheel and source distribution
+        command: |
+          . ../venv/bin/activate
+          tox -e $BUILD_TOX_ENV
+    - run:
+        name: Test installation from a wheel
+        command: |
+          . ../venv/bin/activate
+          tox -e $TEST_TOX_ENV recreate --installpkg dist/*-none-any.whl
+    # - run:
+    #     <<: *publish-prerelease-on-github
+
+conda-steps: &conda-steps
+  steps:
+    - checkout
+    - run:
+        name: Configure conda
+        command: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install virtualenv
+          pip install tox
+    - run:
+        name: Build wheel and source distribution
+        command: |
+          tox -e $BUILD_TOX_ENV
+    - run:
+        name: Test installation from a wheel
+        command: |
+          tox -e $TEST_TOX_ENV recreate --installpkg dist/*-none-any.whl
+
 version: 2
+jobs:
+  # flake8:
+  #   docker:
+  #     - image: circleci/python:3.6.3-jessie
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         <<: *initialize-venv
+  #     - run:
+  #         <<: *run-style-check
+  python27:
+    docker:
+      - image: circleci/python:2.7.14-jessie
+    environment:
+     - TEST_TOX_ENV: "py27"
+     - COVERAGE_TOX_ENV: "coverage-py27"
+     - BUILD_TOX_ENV: "build-py27"
+    <<: *ci-steps
+
+  python35:
+    docker:
+      - image: circleci/python:3.5.4-jessie
+    environment:
+     - TEST_TOX_ENV: "py35"
+     - COVERAGE_TOX_ENV: "coverage-py35"
+     - BUILD_TOX_ENV: "build-py35"
+    <<: *ci-steps
+
+  python36:
+    docker:
+      - image: circleci/python:3.6.3-jessie
+    environment:
+     - TEST_TOX_ENV: "py36"
+     - COVERAGE_TOX_ENV: "coverage-py36"
+     - BUILD_TOX_ENV: "build-py36"
+     - UPLOAD_WHEELS: "true"
+    <<: *ci-steps
+
+  miniconda27:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      - TEST_TOX_ENV: "py27"
+      - BUILD_TOX_ENV: "build-py27"
+    <<: *conda-steps
+
+  miniconda35:
+    docker:
+      - image: continuumio/miniconda3:4.1.11
+    environment:
+      - TEST_TOX_ENV: "py35"
+      - BUILD_TOX_ENV: "build-py35"
+    <<: *conda-steps
+
+  miniconda36:
+    docker:
+      - image: continuumio/miniconda3:latest
+    environment:
+      - TEST_TOX_ENV: "py36"
+      - BUILD_TOX_ENV: "build-py36"
+    <<: *conda-steps
 
 workflows:
   version: 2
-  build:
+  test-package-publish:
     jobs:
-      - test-py27
-      - test-py35
-
-jobs:
-  test-py35:
-    docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.5.3
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
-    steps:
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - py35-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt"}}
-          # fallback to using the latest cache if no exact match is found
-          - py35-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements-dev.txt
-            pip install git+https://github.com/j-friedrich/OASIS.git
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: py35-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt"}}
-
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            py.test
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
-  test-py27:
-    docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:2.7.13
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
-    steps:
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - py27-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - py27-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            virtualenv venv
-            . venv/bin/activate
-            pip install -r requirements-dev.txt
-            pip install git+https://github.com/j-friedrich/OASIS.git
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: py27-dependencies-{{ checksum "requirements.txt" }}
-
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            py.test
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
+      # - flake8
+      - python27
+      - python35
+      - python36
+      - miniconda27
+      - miniconda35
+      - miniconda36
