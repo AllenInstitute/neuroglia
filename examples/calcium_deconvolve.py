@@ -12,7 +12,7 @@ This is an example of how to infer spike events
 
 import numpy as np
 import pandas as pd
-from oasis.functions import gen_data
+from neuroglia.oasis.functions import gen_data
 
 neuron_ids = ['a', 'b', 'c']
 sampling_rate = 30.0
