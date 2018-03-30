@@ -1,16 +1,7 @@
 import setuptools
 from setuptools.extension import Extension
-from Cython.build import cythonize
+from Cython.Build import cythonize
 import numpy as np
-
-ext_modules = [
-    Extension(
-        "neuroglia.calcium.oasis.oasis_methods",
-        sources=["neuroglia/calcium/oasis/oasis_methods.pyx"],
-        include_dirs=[np.get_include()],
-        language="c++",
-    ),
-]
 
 setuptools.setup(
     name="neuroglia",
@@ -25,12 +16,18 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     ext_modules=cythonize(
-        ext_modules,
+        [
+            Extension(
+                "neuroglia.calcium.oasis.oasis_methods",
+                sources=["neuroglia/calcium/oasis/oasis_methods.pyx"],
+                include_dirs=[np.get_include()],
+                language="c++",
+            ),
+        ],
         compiler_directives={'cdivision': True},
         ),
 
     install_requires=[
-        'cython',
         'pandas',
         'xarray',
         'scikit-learn',
