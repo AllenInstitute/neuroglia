@@ -149,13 +149,13 @@ def gen_sinusoidal_data(
 
 
 def make_calcium_traces(
-    n_neurons=10,
+    neuron_ids=('a','b','c'),
     duration=60.0,
     sampling_rate=30.0,
     oscillation=True,
 ):
 
-    neuron_ids = ['neuron_{}'.format(n) for n in range(n_neurons)]
+    n_neurons = len(neuron_ids)
 
     gen_params = dict(
         g=[.95],
