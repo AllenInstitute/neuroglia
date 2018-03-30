@@ -1,9 +1,7 @@
 import numpy as np
 from sklearn.base import TransformerMixin, BaseEstimator, ClassifierMixin
-
-.oasis.functions import deconvolve
-
 from scipy.signal import medfilt, savgol_filter
+from .oasis.functions import deconvolve
 
 
 class MedianFilterDetrender(BaseEstimator, TransformerMixin):
