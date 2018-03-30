@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 def gen_random_spikes(N, T, firerate, framerate, seed=None):
@@ -147,15 +148,17 @@ def gen_sinusoidal_data(
 
 def make_calcium_traces(
     n_neurons=10,
-    duration=60,
-    sampling_rate=30,
-    correlated=True,
+    duration=60.0,
+    sampling_rate=30.0,
+    oscillation=True,
 ):
+
+    neuron_ids = ['neuron_{}'.format(n) for n in range(n_neurons)]
 
     gen_params = dict(
         g=[.95],
         sn=.3,
-        T=sampling_rate*duration,
+        T=int(sampling_rate*duration),
         framerate=sampling_rate,
         firerate=.5,
         b=0,
@@ -163,11 +166,16 @@ def make_calcium_traces(
         seed=13,
     )
 
-    if correlated:
+    if oscillation:
         make_traces = gen_sinusoidal_data
     else:
         make_traces = gen_data
 
-    traces, _, spikes = make_traces(**gen_params)
+    traces, _, spikes = map(np.squeeze, make_traces(**gen_params))
+
+    time = np.arange(0, traces.shape[1]/sampling_rate, 1/sampling_rate)
+
+    traces = pd.DataFrame(traces.T, index=time, columns=neuron_ids)
+    spikes = pd.DataFrame(spikes.T, index=time, columns=neuron_ids)
 
     return traces, spikes
