@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from sklearn.utils import Bunch
+
 
 def gen_random_spikes(N, T, firerate, framerate, seed=None):
 
@@ -178,4 +180,7 @@ def make_calcium_traces(
     traces = pd.DataFrame(traces.T, index=time, columns=neuron_ids)
     spikes = pd.DataFrame(spikes.T, index=time, columns=neuron_ids)
 
-    return traces, spikes
+    return Bunch(
+        traces=traces,
+        spikes=spikes,
+    )
