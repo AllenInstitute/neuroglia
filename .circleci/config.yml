@@ -54,7 +54,7 @@ ci-steps: &ci-steps
         name: Test installation from a wheel
         command: |
           . ../venv/bin/activate
-          tox -e $TEST_TOX_ENV recreate --installpkg dist/*-none-any.whl
+          tox -e $TEST_TOX_ENV recreate --installpkg dist/*.whl
     # - run:
     #     <<: *publish-prerelease-on-github
 
@@ -75,7 +75,7 @@ conda-steps: &conda-steps
     - run:
         name: Test installation from a wheel
         command: |
-          tox -e $TEST_TOX_ENV recreate --installpkg dist/*-none-any.whl
+          tox -e $TEST_TOX_ENV recreate --installpkg dist/*.whl
 
 version: 2
 jobs:
