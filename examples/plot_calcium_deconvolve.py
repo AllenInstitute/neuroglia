@@ -17,7 +17,7 @@ from neuroglia.datasets import make_calcium_traces
 data = make_calcium_traces(duration=10.0,oscillation=False)
 
 traces = data['traces']
-spikes_true = data['spikes']
+spikes = data['spikes']
 
 ########################################################
 # let's plot the data
@@ -33,6 +33,8 @@ from neuroglia.calcium import CalciumDeconvolver
 
 deconvolver = CalciumDeconvolver()
 detected_events = deconvolver.transform(traces)
+
+neuron_ids = traces.columns
 
 for neuron in neuron_ids:
     y_true = spikes[neuron]
