@@ -68,7 +68,7 @@ class EpochTraceReducer(BaseEstimator,TransformerMixin):
                 (self.traces.index >= ev['time'])
                 & (self.traces.index < (ev['time'] + ev['duration']))
                 )
-            return self.traces[mask].apply(self.func,axis=0)
+            return self.traces[mask].apply(self.func,axis=0).to_xarray()
 
         # do the extraction
         tensor = [extractor(ev) for _,ev in X.iterrows()]
