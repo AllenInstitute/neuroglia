@@ -5,6 +5,12 @@ import numpy as np
 class ResponseReducer(BaseEstimator,TransformerMixin):
     """Reduces a response tensor by performing a function along one dimension
 
+    Parameters
+    ----------
+    func : function
+        Function that will be applied to trace samples within epochs
+    dim : str, optional (default: 'sample_times')
+        The dimension that will be reduced.
 
     Notes
     -----
