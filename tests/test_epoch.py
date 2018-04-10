@@ -39,7 +39,7 @@ SPIKES = pd.DataFrame({'neuron':[0,0,1],'time':[0.01,0.2,0.83]})
 TS  = np.arange(0,1,0.01)
 
 def test_EpochTraceReducer_dims():
-    tensorizer = EpochTraceReducer(DFF)
+    tensorizer = EpochTraceReducer(DFF,func=np.mean)
     tensor = tensorizer.fit_transform(EVENTS)
 
     npt.assert_equal(tensor['neuron'].data,NEURON)
