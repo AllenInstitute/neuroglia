@@ -1,34 +1,33 @@
 environment:	
-	matrix:
-		- PYTHON_VERSION: 2.7
-		  CONDA: C:\Miniconda
+ matrix:
+  - PYTHON_VERSION: 2.7
+    CONDA: C:\Miniconda
 
 version: '{build}'
-
 platform:
 - x86
 - x64
 
 branches:
-	only:
-		- master
-		- enh/appveyor
+ only:
+  - master
+  - enh/appveyor
 
 install:
 # from https://gist.github.com/srikanthbojja/5c4205e37d28e1fb2b5b45e2e907b419
-	- '"%CONDA%\Scripts\activate.bat"'
-	- conda config --set always_yes yes --set changeps1 no
-	- conda update -q conda 
-	- conda install mingw libpython
-	- conda info -a 
+ - '"%CONDA%\Scripts\activate.bat"'
+ - conda config --set always_yes yes --set changeps1 no
+ - conda update -q conda 
+ - conda install mingw libpython
+ - conda info -a 
 
 build: false
 
 test_script:
-	- pip install -r requirements.txt
-	- pip install -r requirements-dev.txt
-	- pip install -r requirements-test.txt
-	- python setup.py build_ext --inplace
-	- pip install .
-	- pytest 
+ - pip install -r requirements.txt
+ - pip install -r requirements-dev.txt
+ - pip install -r requirements-test.txt
+ - python setup.py build_ext --inplace
+ - pip install .
+ - pytest 
 
