@@ -31,6 +31,8 @@ for:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
   - conda install mingw libpython
+for:
+- 
   matrix: 
    only: 
     - PYTHON_VERSION: 3.5
