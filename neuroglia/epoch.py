@@ -71,8 +71,8 @@ class EpochTraceReducer(BaseEstimator,TransformerMixin):
             return (
                 self.traces[mask]
                 .apply(self.func,axis=0)
-                .rename('neuron')
                 .to_xarray()
+                .rename({'index':'neuron'})
             )
 
         # do the extraction
