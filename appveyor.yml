@@ -22,15 +22,21 @@ install:
  - '"%CONDA%\Scripts\activate.bat"'
  - conda config --set always_yes yes --set changeps1 no
  - conda update -q conda 
- - conda install mingw libpython
  - conda info -a 
-
-build: false
-
-test_script:
  - pip install -r requirements.txt
  - pip install -r requirements-dev.txt
+
+for:
+- 
+  matrix:
+   only:
+    - PYTHON_VERSION: 2.7
+  install:
+  - conda install mingw libpython
+
+build_script: 
  - python setup.py build_ext --inplace
- - pip install .
+
+test_script:
  - pytest 
 
