@@ -26,7 +26,6 @@ build: false
 test_script:
  - pip install -r requirements.txt
  - pip install -r requirements-dev.txt
- - pip install -r requirements-test.txt
  - python setup.py build_ext --inplace
  - pip install .
  - pytest 
