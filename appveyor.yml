@@ -32,7 +32,15 @@ for:
    only:
     - PYTHON_VERSION: 2.7
   install:
+  - '"%CONDA%\Scripts\activate.bat"'
   - conda install mingw libpython
+  matrix: 
+   only: 
+    - PYTHON_VERSION: 3.5
+    - PYTHON_VERSION: 3.6
+   install:
+   - conda install libpython
+   - conda install -c msys2 m2w64-toolchain
 
 build_script: 
  - python setup.py build_ext --inplace
