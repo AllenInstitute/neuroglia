@@ -7,6 +7,7 @@ import xarray.testing as xrt
 
 from neuroglia.spike import Smoother
 from neuroglia.event import PeriEventTraceSampler, PeriEventSpikeSampler
+from neuroglia.event import PeriEventTraceReducer
 
 from sklearn.base import clone
 
