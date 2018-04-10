@@ -6,7 +6,7 @@ import numpy.testing as npt
 import xarray.testing as xrt
 
 from neuroglia.spike import Smoother
-from neuroglia.epochs import EpochTraceReducer
+from neuroglia.epoch import EpochTraceReducer
 
 from sklearn.base import clone
 
