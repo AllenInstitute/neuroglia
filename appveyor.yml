@@ -17,15 +17,7 @@ branches:
   - master
   - enh/appveyor
 
-install:
 # from https://gist.github.com/srikanthbojja/5c4205e37d28e1fb2b5b45e2e907b419
- - '"%CONDA%\Scripts\activate.bat"'
- - conda config --set always_yes yes --set changeps1 no
- - conda update -q conda 
- - conda info -a 
- - pip install -r requirements.txt
- - pip install -r requirements-dev.txt
-
 for:
 - 
   matrix:
@@ -33,12 +25,23 @@ for:
     - PYTHON_VERSION: 2.7
   install:
   - '"%CONDA%\Scripts\activate.bat"'
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda 
+  - conda info -a 
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - conda install mingw libpython
   matrix: 
    only: 
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
    install:
+   - '"%CONDA%\Scripts\activate.bat"'
+   - conda config --set always_yes yes --set changeps1 no
+   - conda update -q conda 
+   - conda info -a 
+   - pip install -r requirements.txt
+   - pip install -r requirements-dev.txt
    - conda install libpython
    - conda install -c msys2 m2w64-toolchain
 
