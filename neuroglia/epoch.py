@@ -4,7 +4,7 @@ import xarray as xr
 
 from sklearn.base import BaseEstimator,TransformerMixin
 
-from utils import events_to_xr_dim
+from .utils import events_to_xr_dim
 
 class EpochTraceReducer(BaseEstimator,TransformerMixin):
     """Take event-aligned samples of traces from a population of neurons.
