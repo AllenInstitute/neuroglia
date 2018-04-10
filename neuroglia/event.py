@@ -83,6 +83,7 @@ class PeriEventTraceSampler(BaseEstimator,TransformerMixin):
         # concatenate the DataArrays into a single DataArray
         return xr.concat(tensor,dim=concat_dim)
 
+
 class PeriEventTraceReducer(BaseEstimator,TransformerMixin):
     """Take event-aligned samples of traces from a population of neurons.
 
@@ -104,9 +105,10 @@ class PeriEventTraceReducer(BaseEstimator,TransformerMixin):
     This estimator is stateless (besides constructor parameters), the
     fit method does nothing but is useful when used in a pipeline.
     """
-    def __init__(self, traces, sample_times):
+    def __init__(self, traces, sample_times,func=np.mean):
         self.traces = traces
         self.sample_times = sample_times
+        self.func = func
 
     def fit(self, X, y=None):
         """Do nothing and return the estimator unchanged
@@ -140,8 +142,8 @@ class PeriEventTraceReducer(BaseEstimator,TransformerMixin):
 
         sample_dim = xr.DataArray(
             self.sample_times[:-1],
-            name='sample_time',
-            dims=['sample_time'],
+            name='sample_times',
+            dims=['sample_times'],
         )
 
         # define a local function that will extract traces around each event
