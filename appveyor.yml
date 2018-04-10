@@ -5,10 +5,10 @@ environment:
     CONDA_DEPENDENCIES: mingw libpython 
   - PYTHON_VERSION: 3.5
     CONDA: C:\Miniconda3
-    CONDA_DEPENDENCIES: libpython -c msys2 m2w64-toolchain 
+    CONDA_DEPENDENCIES: libpython m2w64-toolchain 
   - PYTHON_VERSION: 3.6
     CONDA: C:\Miniconda3
-    CONDA_DEPENDENCIES: libpython -c msys2 m2w64-toolchain
+    CONDA_DEPENDENCIES: libpython m2w64-toolchain
 
 version: '{build}'
 platform:
