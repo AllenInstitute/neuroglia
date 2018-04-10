@@ -2,10 +2,13 @@ environment:
  matrix:
   - PYTHON_VERSION: 2.7
     CONDA: C:\Miniconda
+    CONDA_DEPENDENCIES: mingw libpython 
   - PYTHON_VERSION: 3.5
     CONDA: C:\Miniconda3
+    CONDA_DEPENDENCIES: libpython -c msys2 m2w64-toolchain 
   - PYTHON_VERSION: 3.6
     CONDA: C:\Miniconda3
+    CONDA_DEPENDENCIES: libpython -c msys2 m2w64-toolchain
 
 version: '{build}'
 platform:
@@ -17,35 +20,14 @@ branches:
   - master
   - enh/appveyor
 
+install:
 # from https://gist.github.com/srikanthbojja/5c4205e37d28e1fb2b5b45e2e907b419
-for:
-- 
-  matrix:
-   only:
-    - PYTHON_VERSION: 2.7
-  install:
-  - '"%CONDA%\Scripts\activate.bat"'
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda 
-  - conda info -a 
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
-  - conda install mingw libpython
-for:
-- 
-  matrix: 
-   only: 
-    - PYTHON_VERSION: 3.5
-    - PYTHON_VERSION: 3.6
-   install:
-   - '"%CONDA%\Scripts\activate.bat"'
-   - conda config --set always_yes yes --set changeps1 no
-   - conda update -q conda 
-   - conda info -a 
-   - pip install -r requirements.txt
-   - pip install -r requirements-dev.txt
-   - conda install libpython
-   - conda install -c msys2 m2w64-toolchain
+- '"%CONDA%\Scripts\activate.bat"'
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda 
+- conda info -a 
+- pip install -r requirements.txt
+- pip install -r requirements-dev.txt
 
 build_script: 
  - python setup.py build_ext --inplace
