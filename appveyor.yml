@@ -1,0 +1,37 @@
+# from https://gist.github.com/srikanthbojja/5c4205e37d28e1fb2b5b45e2e907b419
+# also a lot of this is shamelessly stolen from astropy
+environment:
+ global:
+   PYTHON: "C:\\conda"
+   PYTHON_ARCH: "64"
+   MINICONDA: "latest"
+   CONDA_CHANNELS: "conda-forge msys2"
+   CONDA_DEPENDENCIES: "libpython"
+ matrix:
+  - PYTHON_VERSION: "2.7"
+    CONDA_DEPENDENCIES: "mingw"
+  - PYTHON_VERSION: "3.5"
+    CONDA_DEPENDENCIES: "m2w64-toolchain"
+  - PYTHON_VERSION: "3.6"
+    CONDA_DEPENDENCIES: "m2w64-toolchain"
+
+version: '{build}'
+platform:
+ - x64
+
+branches:
+ only:
+  - master
+
+install:
+- "git clone git://github.com/astropy/ci-helpers.git"
+- "powershell ci-helpers/appveyor/install-miniconda.ps1"
+- "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+- pip install -r requirements.txt
+- pip install -r requirements-dev.txt
+
+build_script:
+ - python setup.py build_ext --inplace
+
+test_script:
+ - pytest
