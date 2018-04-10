@@ -48,6 +48,16 @@ def test_PeriEventTraceSampler_dims():
 
     clone(tensorizer)
 
+def test_PeriEventTraceReducer_dims():
+    tensorizer = PeriEventTraceReducer(DFF,sample_times=TS,func=np.mean)
+    tensor = tensorizer.fit_transform(EVENTS)
+
+    npt.assert_equal(tensor['neuron'].data,NEURON)
+    npt.assert_equal(tensor['sample_times'].data,TS[:-1])
+    npt.assert_equal(tensor['lbl'].data,LBL)
+
+    clone(tensorizer)
+
 def test_PeriEventSpikeSampler():
     tensorizer = PeriEventSpikeSampler(SPIKES,sample_times=TS,sampler=Smoother)
     tensor = tensorizer.fit_transform(EVENTS)
