@@ -7,6 +7,7 @@ import xarray.testing as xrt
 
 from neuroglia.spike import Smoother
 from neuroglia.event import PeriEventTraceSampler, PeriEventSpikeSampler
+from neuroglia.event import PeriEventTraceReducer
 
 from sklearn.base import clone
 
@@ -44,6 +45,16 @@ def test_PeriEventTraceSampler_dims():
 
     npt.assert_equal(tensor['neuron'].data,NEURON)
     npt.assert_equal(tensor['sample_times'].data,TS)
+    npt.assert_equal(tensor['lbl'].data,LBL)
+
+    clone(tensorizer)
+
+def test_PeriEventTraceReducer_dims():
+    tensorizer = PeriEventTraceReducer(DFF,sample_times=TS,func=np.mean)
+    tensor = tensorizer.fit_transform(EVENTS)
+
+    npt.assert_equal(tensor['neuron'].data,NEURON)
+    npt.assert_equal(tensor['sample_times'].data,TS[:-1])
     npt.assert_equal(tensor['lbl'].data,LBL)
 
     clone(tensorizer)
