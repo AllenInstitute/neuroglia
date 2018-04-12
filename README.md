@@ -30,3 +30,5 @@ We are planning on occasional updating this tool with no fixed schedule. Communi
 - Nicholas Cain
 - Michael Oliver
 - Sahar Manavi
+- Johannes Friedrich
+- Christopher Mochizuki
