@@ -26,6 +26,19 @@ import os
 cwd = os.getcwd()
 project_root = os.path.dirname(cwd)
 
+# JK: build cython extensions in place
+import shlex, subprocess
+cmd = "cd {} & python setup.py build_ext --inplace".format(project_root)
+args = shlex.split(cmd)
+process = subprocess.Popen(
+    args,
+    stderr=subprocess.STDOUT,
+    shell=True,
+)
+process.wait()
+
+
+
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.
@@ -129,13 +142,13 @@ sphinx_gallery_conf = {
     'default_thumb_file': '_static/max_proj.png',
     'min_reported_time': 10,
 
-    'binder': {
-        'org': 'AllenInstitute',
-        'repo': 'http://neuroglia.readthedocs.io',
-        'url': 'https://mybinder.org',
-        'branch': 'master',
-        'dependencies': './binder/requirements.txt',
-        }
+    # 'binder': {
+    #     'org': 'AllenInstitute',
+    #     'repo': 'http://neuroglia.readthedocs.io',
+    #     'url': 'https://mybinder.org',
+    #     'branch': 'master',
+    #     'dependencies': './binder/requirements.txt',
+    #     }
 
     }
 
