@@ -35,5 +35,5 @@ build_script:
  - python setup.py build_ext --inplace
 
 test_script:
- - pytest --cov=./
+ - pytest --cov=neuroglia
  - codecov
