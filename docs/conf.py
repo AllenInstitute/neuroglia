@@ -26,6 +26,19 @@ import os
 cwd = os.getcwd()
 project_root = os.path.dirname(cwd)
 
+# JK: build cython extensions in place
+import shlex, subprocess
+cmd = "cd {} & python setup.py build_ext --inplace".format(project_root)
+args = shlex.split(cmd)
+process = subprocess.Popen(
+    args,
+    stderr=subprocess.STDOUT,
+    shell=True,
+)
+process.wait()
+
+
+
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.

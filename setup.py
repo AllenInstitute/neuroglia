@@ -1,8 +1,11 @@
 import setuptools
+from setuptools.extension import Extension
+from Cython.Build import cythonize
+import numpy as np
 
 setuptools.setup(
     name="neuroglia",
-    version="0.1.0",
+    version="0.2.0",
     url="https://github.com/AllenInstitute/neuroglia",
 
     author="Justin Kiggins",
@@ -11,6 +14,18 @@ setuptools.setup(
     description="scikit-learn compatible transformers for neural data science",
 
     packages=setuptools.find_packages(),
+
+    ext_modules=cythonize(
+        [
+            Extension(
+                "neuroglia.calcium.oasis.oasis_methods",
+                sources=["neuroglia/calcium/oasis/oasis_methods.pyx"],
+                include_dirs=[np.get_include()],
+                language="c++",
+            ),
+        ],
+        compiler_directives={'cdivision': True},
+        ),
 
     install_requires=[
         'pandas',

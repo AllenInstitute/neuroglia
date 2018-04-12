@@ -12,17 +12,12 @@ This is an example of how to infer spike events
 
 import numpy as np
 import pandas as pd
-from oasis.functions import gen_data
+from neuroglia.datasets import make_calcium_traces
 
-neuron_ids = ['a', 'b', 'c']
-sampling_rate = 30.0
+data = make_calcium_traces(duration=10.0,oscillation=False)
 
-traces, _, spikes = map(np.squeeze, gen_data(N=3, b=2, seed=0))
-
-time = np.arange(0, traces.shape[1]/sampling_rate, 1/sampling_rate)
-
-traces = pd.DataFrame(traces.T, index=time, columns=neuron_ids)
-spikes = pd.DataFrame(spikes.T, index=time, columns=neuron_ids)
+traces = data['traces']
+spikes = data['spikes']
 
 ########################################################
 # let's plot the data
@@ -38,6 +33,8 @@ from neuroglia.calcium import CalciumDeconvolver
 
 deconvolver = CalciumDeconvolver()
 detected_events = deconvolver.transform(traces)
+
+neuron_ids = traces.columns
 
 for neuron in neuron_ids:
     y_true = spikes[neuron]
