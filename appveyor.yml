@@ -7,6 +7,7 @@ environment:
    MINICONDA: "latest"
    CONDA_CHANNELS: "conda-forge msys2"
    CONDA_DEPENDENCIES: "libpython"
+
  matrix:
   - PYTHON_VERSION: "2.7"
     CONDA_DEPENDENCIES: "mingw"
@@ -18,10 +19,6 @@ environment:
 version: '{build}'
 platform:
  - x64
-
-branches:
- only:
-  - master
 
 install:
 - "git clone git://github.com/astropy/ci-helpers.git"
@@ -37,3 +34,21 @@ build_script:
 test_script:
  - pytest --cov=neuroglia
  - codecov
+
+after_test:
+ - "python setup.py sdist bdist bdist_wheel"
+
+artifacts:
+ - path: dist\*
+
+deploy:
+  - provider: GitHub
+    tag: $(APPVEYOR_REPO_TAG_NAME)
+    auth_token:
+     secure: ZaX3irxvB6mFFrMQ8H75lH8V36RJAJgx6QkabtM2XKg3isBqqWayKs70dQrZLhFz
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+     branch: master
+     appveyor_repo_tag: true
