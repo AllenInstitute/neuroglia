@@ -36,10 +36,11 @@ test_script:
  - codecov
 
 after_test:
- - "python setup.py sdist bdist bdist_wheel"
+ - "python setup.py sdist bdist_wheel"
 
 artifacts:
  - path: dist\*
+ - name: packages
 
 deploy:
   - provider: GitHub
@@ -52,3 +53,4 @@ deploy:
     on:
      branch: master
      appveyor_repo_tag: true
+    artifact: packages
