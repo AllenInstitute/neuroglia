@@ -29,14 +29,14 @@ install:
 - pip install codecov
 
 build_script:
- - python setup.py build_ext --inplace
+ - "%CMD_IN_ENV% python setup.py build_ext --inplace"
 
 test_script:
- - pytest --cov=neuroglia
+ - "%CMD_IN_ENV% pytest --cov=neuroglia"
  - codecov
 
 after_test:
- - "python setup.py sdist bdist_wheel"
+ - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
 
 artifacts:
  - path: dist\*.whl
@@ -48,6 +48,6 @@ deploy:
     auth_token:
      secure: ZaX3irxvB6mFFrMQ8H75lH8V36RJAJgx6QkabtM2XKg3isBqqWayKs70dQrZLhFz
     draft: false
-    prerelease: false
+    prerelease: true
     on:
      appveyor_repo_tag: true
