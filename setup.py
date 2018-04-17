@@ -28,11 +28,12 @@ setuptools.setup(
         ),
 
     install_requires=[
+        'numpy',
+        'scipy',
         'pandas',
         'xarray',
         'scikit-learn',
     ],
-
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Programming Language :: Python',
