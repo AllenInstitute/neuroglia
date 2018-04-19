@@ -26,19 +26,6 @@ import os
 cwd = os.getcwd()
 project_root = os.path.dirname(cwd)
 
-# JK: build cython extensions in place
-import shlex, subprocess
-cmd = "cd {} & python setup.py build_ext --inplace".format(project_root)
-args = shlex.split(cmd)
-process = subprocess.Popen(
-    args,
-    stderr=subprocess.STDOUT,
-    shell=True,
-)
-process.wait()
-
-
-
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.
@@ -46,6 +33,20 @@ sys.path.insert(0, project_root)
 
 import neuroglia
 import sphinx_bootstrap_theme
+from unittest.mock import MagicMock
+
+# from: http://read-the-docs.readthedocs.io/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+
+
+class Mock(MagicMock):
+
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+
+MOCK_MODULES = ["neuroglia.calcium.oasis.oasis_methods"]
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ---------------------------------------------
 
