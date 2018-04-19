@@ -8,6 +8,7 @@ It features scikit-learn compatible transformers for extracting features from ex
 [![CircleCI](https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=shield&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13)](https://circleci.com/gh/AllenInstitute/neuroglia)
 [![Documentation Status](https://readthedocs.org/projects/neuroglia/badge/?version=latest)](http://neuroglia.readthedocs.io/en/latest/?badge=latest)
 [![codecov.io](https://codecov.io/gh/AllenInstitute/neuroglia/branch/master/graph/badge.svg)](https://codecov.io/gh/AllenInstitute/neuroglia)
+[![Requirements Status](https://requires.io/github/AllenInstitute/neuroglia/requirements.svg?branch=master)](https://requires.io/github/AllenInstitute/neuroglia/requirements/?branch=master)
 
 
 ## Installation
