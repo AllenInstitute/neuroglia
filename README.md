@@ -6,6 +6,8 @@ It features scikit-learn compatible transformers for extracting features from ex
 
 [![DOI](https://zenodo.org/badge/98463320.svg)](https://zenodo.org/badge/latestdoi/98463320)
 [![CircleCI](https://circleci.com/gh/AllenInstitute/neuroglia.svg?style=shield&circle-token=d0a164bbf19524a24f0d6bc42535aab9c89f8c13)](https://circleci.com/gh/AllenInstitute/neuroglia)
+[![Travis](https://travis-ci.org/AllenInstitute/neuroglia.svg?branch=master)](https://travis-ci.org/AllenInstitute/neuroglia)
+[![AppVeyor](https://img.shields.io/appveyor/ci/mochic/neuroglia/master.svg)](https://ci.appveyor.com/project/mochic/neuroglia)
 [![Documentation Status](https://readthedocs.org/projects/neuroglia/badge/?version=latest)](http://neuroglia.readthedocs.io/en/latest/?badge=latest)
 [![codecov.io](https://codecov.io/gh/AllenInstitute/neuroglia/branch/master/graph/badge.svg)](https://codecov.io/gh/AllenInstitute/neuroglia)
 [![Requirements Status](https://requires.io/github/AllenInstitute/neuroglia/requirements.svg?branch=master)](https://requires.io/github/AllenInstitute/neuroglia/requirements/?branch=master)
