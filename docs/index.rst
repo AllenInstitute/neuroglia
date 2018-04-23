@@ -46,7 +46,9 @@ To see the code or report a bug, please visit the `github repository
 
 * Spike transformers: :ref:`API <spike_api>`
 * Trace transformers: :ref:`API <trace_api>`
+* Calcium transformers: :ref:`API <calcium_api>`
 * Event transformers: :ref:`API <event_api>`
+* Epoch transformers: :ref:`API <epoch_api>`
 * Tensor transformers: :ref:`API <tensor_api>`
 
 .. raw:: html

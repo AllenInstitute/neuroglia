@@ -14,17 +14,9 @@ To install neuroglia, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install git+https://github.com/AllenInstitute/neuroglia.git
+    $ pip install neuroglia
 
-To use the calcium module, including CalciumDeconvolver, you must also install OASIS:
-
-.. code-block:: console
-
-    $ pip install cython
-    $ pip install git+https://github.com/j-friedrich/OASIS.git
-
-
-From sources
+From source
 ------------
 
 The sources for neuroglia can be downloaded from the `Github repo`_.
@@ -33,4 +25,5 @@ The sources for neuroglia can be downloaded from the `Github repo`_.
 
     $ git clone git://github.com/AllenInstitute/neuroglia
     $ cd neuroglia
+    $ pip install -r requirements
     $ pip install ./
