@@ -33,7 +33,7 @@ sys.path.insert(0, project_root)
 
 import neuroglia
 import sphinx_bootstrap_theme
-from unittest.mock import MagicMock
+from mock import MagicMock
 
 # from: http://read-the-docs.readthedocs.io/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 
