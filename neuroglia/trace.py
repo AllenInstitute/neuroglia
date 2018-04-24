@@ -200,3 +200,59 @@ class WhenTrueFinder(BaseEstimator,TransformerMixin):
             .reset_index()[['level_0','level_1']]
             .rename(columns={'level_0':'time','level_1':'neuron'})
         )
+
+
+class Resampler(BaseEstimator, TransformerMixin):
+    """Resample data
+
+    Parameters
+    ----------
+    sample_times
+
+    Notes
+    -----
+
+    This estimator is stateless (besides constructor parameters), the
+    fit method does nothing but is useful when used in a pipeline.
+    """
+
+    def __init__(self, sample_times=None):
+        self.sample_times = sample_times
+
+    def fit(self, X, y=None):
+        """Do nothing and return the estimator unchanged
+
+        This method is here to implement the scikit-learn API and work in
+        scikit-learn pipelines.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        self
+
+        """
+        return self
+
+    def transform(self, X):
+        """Binarize each element of X
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape [n_samples, n_features]
+            The data to binarize, element by element.
+        """
+
+        if self.sample_times is None:
+            self.sample_times = X.index
+
+        splined_traces = running.apply(
+            lambda y: create_interpolator(X.index,y),
+            axis=0,
+        )
+
+        return splined_traces.apply(
+            lambda s: pd.Series(s(sample_times),index=sample_times)
+        ).T
