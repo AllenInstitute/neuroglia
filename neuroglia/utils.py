@@ -26,5 +26,5 @@ def create_interpolator(t,y):
     interpolator function that accepts a list of times
 
     """
-    interpolator = interpolate.InterpolatedUnivariateSpline(t, y)
+    interpolator = interpolate.interp1d(t, y, bounds_error=False)
     return interpolator
