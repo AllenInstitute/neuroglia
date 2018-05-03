@@ -140,3 +140,5 @@ def test_jfriedrich_estimate_parameters(synthetic_calcium, calcium_kwargs, sn, g
 
     npt.assert_allclose(estimated_g, g, 0.02)
     npt.assert_allclose(estimated_sn, sn, 0.02)
+
+  
