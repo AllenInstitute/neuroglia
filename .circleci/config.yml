@@ -116,6 +116,16 @@ jobs:
      - UPLOAD_WHEELS: "true"
     <<: *ci-steps
 
+  python37:
+    docker:
+      - image: circleci/python:3.7.0-jessie
+    environment:
+     - TEST_TOX_ENV: "py37"
+     - COVERAGE_TOX_ENV: "coverage-py37"
+     - BUILD_TOX_ENV: "build-py37"
+     - UPLOAD_WHEELS: "true"
+    <<: *ci-steps
+
   miniconda27:
     docker:
       - image: continuumio/miniconda:latest
@@ -148,6 +158,7 @@ workflows:
       - python27
       - python35
       - python36
+      - python37
       # - miniconda27
       # - miniconda35
       # - miniconda36
