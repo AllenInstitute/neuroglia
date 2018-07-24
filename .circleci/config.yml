@@ -58,30 +58,30 @@ ci-steps: &ci-steps
     # - run:
     #     <<: *publish-prerelease-on-github
 
-conda-steps: &conda-steps
-  steps:
-    - checkout
-    - run:
-        name: Configure conda
-        command: |
-          conda config --set always_yes yes --set changeps1 no
-          conda config --add channels conda-forge
-          conda install virtualenv
-          pip install tox
-    - run:
-        name: Build wheel and source distribution
-        command: |
-          tox -e $BUILD_TOX_ENV
-    - run:
-        name: Test installation from a wheel
-        command: |
-          tox -e $TEST_TOX_ENV recreate --installpkg dist/*.whl
+# conda-steps: &conda-steps
+#   steps:
+#     - checkout
+#     - run:
+#         name: Configure conda
+#         command: |
+#           conda config --set always_yes yes --set changeps1 no
+#           conda config --add channels conda-forge
+#           conda install virtualenv
+#           pip install tox
+#     - run:
+#         name: Build wheel and source distribution
+#         command: |
+#           tox -e $BUILD_TOX_ENV
+#     - run:
+#         name: Test installation from a wheel
+#         command: |
+#           tox -e $TEST_TOX_ENV recreate --installpkg dist/*.whl
 
 version: 2
 jobs:
   # flake8:
   #   docker:
-  #     - image: circleci/python:3.6.3-jessie
+  #     - image: circleci/python:3.6.3-stretch
   #   steps:
   #     - checkout
   #     - run:
@@ -90,7 +90,7 @@ jobs:
   #         <<: *run-style-check
   python27:
     docker:
-      - image: circleci/python:2.7.14-jessie
+      - image: circleci/python:2.7.15-stretch
     environment:
      - TEST_TOX_ENV: "py27"
      - COVERAGE_TOX_ENV: "coverage-py27"
@@ -99,7 +99,7 @@ jobs:
 
   python35:
     docker:
-      - image: circleci/python:3.5.4-jessie
+      - image: circleci/python:3.5.5-stretch
     environment:
      - TEST_TOX_ENV: "py35"
      - COVERAGE_TOX_ENV: "coverage-py35"
@@ -108,7 +108,7 @@ jobs:
 
   python36:
     docker:
-      - image: circleci/python:3.6.3-jessie
+      - image: circleci/python:3.6.6-stretch
     environment:
      - TEST_TOX_ENV: "py36"
      - COVERAGE_TOX_ENV: "coverage-py36"
@@ -118,7 +118,7 @@ jobs:
 
   python37:
     docker:
-      - image: circleci/python:3.7.0-jessie
+      - image: circleci/python:3.7.0-stretch
     environment:
      - TEST_TOX_ENV: "py37"
      - COVERAGE_TOX_ENV: "coverage-py37"
@@ -126,29 +126,29 @@ jobs:
      - UPLOAD_WHEELS: "true"
     <<: *ci-steps
 
-  miniconda27:
-    docker:
-      - image: continuumio/miniconda:latest
-    environment:
-      - TEST_TOX_ENV: "py27"
-      - BUILD_TOX_ENV: "build-py27"
-    <<: *conda-steps
-
-  miniconda35:
-    docker:
-      - image: continuumio/miniconda3:4.1.11
-    environment:
-      - TEST_TOX_ENV: "py35"
-      - BUILD_TOX_ENV: "build-py35"
-    <<: *conda-steps
-
-  miniconda36:
-    docker:
-      - image: continuumio/miniconda3:latest
-    environment:
-      - TEST_TOX_ENV: "py36"
-      - BUILD_TOX_ENV: "build-py36"
-    <<: *conda-steps
+  # miniconda27:
+  #   docker:
+  #     - image: continuumio/miniconda:latest
+  #   environment:
+  #     - TEST_TOX_ENV: "py27"
+  #     - BUILD_TOX_ENV: "build-py27"
+  #   <<: *conda-steps
+  #
+  # miniconda35:
+  #   docker:
+  #     - image: continuumio/miniconda3:4.1.11
+  #   environment:
+  #     - TEST_TOX_ENV: "py35"
+  #     - BUILD_TOX_ENV: "build-py35"
+  #   <<: *conda-steps
+  #
+  # miniconda36:
+  #   docker:
+  #     - image: continuumio/miniconda3:latest
+  #   environment:
+  #     - TEST_TOX_ENV: "py36"
+  #     - BUILD_TOX_ENV: "build-py36"
+  #   <<: *conda-steps
 
 workflows:
   version: 2
