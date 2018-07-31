@@ -1,2 +1,4 @@
 ignore:
+  - "neuroglia/datasets/crcns.py"
+  - "neuroglia/datasets/figshare.py"
   - "neuroglia/calcium/oasis/functions.py"
