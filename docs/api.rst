@@ -37,11 +37,7 @@ Calcium transformers
 
 .. autosummary::
    :toctree: generated/
-<<<<<<< HEAD
 
-=======
-   
->>>>>>> 14a9cab... :memo: typo in API docs
     calcium.CalciumDeconvolver
     calcium.MedianFilterDetrender
     calcium.SavGolFilterDetrender
