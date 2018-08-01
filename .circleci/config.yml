@@ -140,6 +140,22 @@ jobs:
       - BUILD_TOX_ENV: "build-py36"
     <<: *conda-steps
 
+  docs27:
+    docker:
+      - image: readthedocs/build:2.0
+    environment:
+      - DOCS_TOX_ENV: "docs-py27"
+    steps:
+      - checkout
+      - run:
+          <<: *initialize-venv
+      - run:
+          name: Build documentation
+          command: |
+            . ../venv/bin/activate
+            pip install tox
+            tox -e $DOCS_TOX_ENV
+
 workflows:
   version: 2
   test-package-publish:
@@ -148,6 +164,7 @@ workflows:
       - python27
       - python35
       - python36
+      - docs27
       # - miniconda27
       # - miniconda35
       # - miniconda36
