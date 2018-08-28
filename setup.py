@@ -5,7 +5,7 @@ import numpy as np
 
 setuptools.setup(
     name="neuroglia",
-    version="0.2.9",
+    version="0.2.10",
     url="https://github.com/AllenInstitute/neuroglia",
 
     author="Justin Kiggins",
