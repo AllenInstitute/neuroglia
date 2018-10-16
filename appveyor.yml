@@ -5,7 +5,6 @@ environment:
    PYTHON: "C:\\conda"
    PYTHON_ARCH: "64"
    MINICONDA: "latest"
-   CONDA_CHANNELS: "conda-forge msys2"
 
  matrix:
   - PYTHON_VERSION: "2.7"
