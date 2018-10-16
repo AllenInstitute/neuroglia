@@ -88,7 +88,7 @@ def gen_data(g=[.95], sn=.3, T=3000, framerate=30, firerate=.5, b=0, N=20, seed=
     true_calcium = make_calcium(true_spikes, g)
     observed = add_noise(true_calcium, b, sn)
 
-    return observed, true_calcium, true_spikes
+    return observed, true_calcium, true_spikes.astype(int)
 
 
 def gen_sinusoidal_data(
@@ -145,7 +145,7 @@ def gen_sinusoidal_data(
     true_calcium = make_calcium(true_spikes, g)
     observed = add_noise(true_calcium, b, sn)
 
-    return observed, true_calcium, true_spikes
+    return observed, true_calcium, true_spikes.astype(int)
 
 
 def make_calcium_traces(
