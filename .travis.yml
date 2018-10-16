@@ -90,12 +90,10 @@ deploy:
     draft: false
     prerelease: true
     on:
-      branch: prod
       tags: true
   - provider: pypi
     user: "mochic"
     password:
       secure: "zztnlwUplr7pbtBs3c3oM/CjlIAZSH1RT2msJWZyz6TXhIUZVnI4WyVudBSl452Tjo12X9EXLHdCf6ToHuX3cwUGTwzn7HNncuJE96Xxw4qb2T9p0VTYgPZ6aEq16M4UhpO+E+T4xbKBz7+GH0ZF3THO64Rkq2SNRmf4/EZgPJv4PVFEpVf2CPWIRtbtIARMi6Vde4xUQqQ6KflhFK54/XR8cECjWcG2bdeu2y2iVj7UemkFoLd6Pzy04o2rWJtKey3tEABFlxdX+pD2t5GQ1vIp2xzV/s/U+NLE39LZywPLz6HX3UpUP1jfwFKlHnaX57lIf8oY957F0RJaEjdU6y65TULnH29yONXgGrHY8UekoIQD47Bgq6c92Al8k7CFDbCJ1wP5xkaDUThPJbOvRltQwKCN6iem5nQAuC1Q/RGph8jhFChiGqIUE2DnbMfEy/MaNNt9fT6p/8Z2gcimcotZG9VqzOTJk54wr3UY7yvZAaE3lwGoQT80ZndWCmwf7n8mICLuUDsQ35MmQBzjtphMmXFLP3eGCCXqNDp2vupmHk2GWKCmL8urOpCz0Z2bOfYLzzDOriH9VeKvu9D61myCDV2C9eCq8O8OCM2qyT2v6q/h+85QyZK30netn9EuRZ9eSdw5RNb4h8LzYoSR9efs2QMqZOma3uWKHZ6HEq4="
     on:
-      branch: prod
       tags: true
