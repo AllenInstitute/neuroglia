@@ -110,3 +110,5 @@ ENV/
 
 # Visual Studio Code
 .vscode/
+
+examples/brain_observatory/

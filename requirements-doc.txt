@@ -5,3 +5,4 @@ sphinx_bootstrap_theme
 seaborn
 mock
 pillow
+allensdk
