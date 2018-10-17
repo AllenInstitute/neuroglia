@@ -33,6 +33,7 @@ setuptools.setup(
         'pandas',
         'xarray',
         'scikit-learn',
+        'requests',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
