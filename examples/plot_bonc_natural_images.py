@@ -57,6 +57,7 @@ from neuroglia.epoch import EpochTraceReducer
 
 reducer = EpochTraceReducer(traces,func=np.mean)
 X = reducer.fit_transform(stim_table)
+y = stim_table['frame'].values
 
 ###########################################
 # Do some dimensionality reduction on the responses
@@ -70,4 +71,4 @@ X_reduced = pca.fit_transform(X)
 # Plot the first two Principal Components
 
 import matplotlib.pyplot as plt
-plt.plot(X_reduced[:,0],X_reduced[:,1])
+plt.scatter(X_reduced[:,0],X_reduced[:,1],c=y)
