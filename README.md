@@ -11,6 +11,7 @@ It features scikit-learn compatible transformers for extracting features from ex
 [![Documentation Status](https://readthedocs.org/projects/neuroglia/badge/?version=latest)](http://neuroglia.readthedocs.io/en/latest/?badge=latest)
 [![codecov.io](https://codecov.io/gh/AllenInstitute/neuroglia/branch/master/graph/badge.svg)](https://codecov.io/gh/AllenInstitute/neuroglia)
 [![Requirements Status](https://requires.io/github/AllenInstitute/neuroglia/requirements.svg?branch=master)](https://requires.io/github/AllenInstitute/neuroglia/requirements/?branch=master)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/neuromusic)
 
 
 ## Installation
