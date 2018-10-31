@@ -19,39 +19,49 @@ Transformations between these representations are implemented as scikit-learn tr
 
 In this example, we are going to demonstrate neuroglia's use by implementing a decoding analysis with spikes recorded from a Neuropixels probe in mouse primary visual cortex.
 
+
+
 """
 
-"""####################################
-# first, we need to load the data
-
-
-
+import h5py
 import pandas as pd
-ephys_data = pd.read_pickle('/allen/aibs/mat/RamIyer/frm_Dan/NWBFilesSev/V1_NI_pkl_data/M15_ni_data.pkl')
-spikes = ephys_data['spike_times']
-events = ephys_data['stim_table'].rename(
-    columns={
-        'Start':'time',
-        'Frame':'image_id',
-    },
-)
 
-from neuroglia.nwb import SpikeTablizer
-spikes = SpikeTablizer().fit_transform(ephys_data['spiketimes'])
-print(spikes.head())"""
+nwb_file = '/allen/programs/braintv/workgroups/nc-ophys/Justin/ephys_single_16.nwb'
+
+with h5py.File(nwb_file) as f:
+
+    # Load spikes
+    nwb_spikes = {}
+    for unit, unit_data in f['processing/V1/UnitTimes'].items():
+        if unit == 'unit_list':
+            continue
+        else:
+            nwb_spikes[unit] = unit_data['times'][:]
+
+    # Load visual stimuli
+    import pandas as pd
+    events = pd.DataFrame(
+        data=f['stimulus/presentation/natural_images/timestamps'][:],
+        columns=['time','end_time','image_id'],
+    )
+    events['image_id'] = events['image_id'].astype(int)
+    events['duration'] = events['end_time']-events['time']
 
 ####################################
 # Spikes
 # ------
 #
-# We start with `spikes`, a pandas dataframe containing spike times and neuron labels for each spike recorded and sorted.
+# Neuroglia expects spikes to be stored in a pandas dataframe with one column for spike times and another for neuron labels for each spike recorded and sorted.
 #
+# To help transform spikes loaded from NWB files, we use the SpikeTablizer transformer from the `nwb` module.
+
+from neuroglia.nwb import SpikeTablizer
+
+spikes = SpikeTablizer().fit_transform(nwb_spikes)
 
 print(spikes.head())
 
 ####################################
-# Note: depending on how your data is stored, you may need to reshape it to match this structure. If you are loading spike times from an NWB file, the SpikeTablizer in the neuroglia.nwb module may be useful.
-#
 # Events
 # ------
 #
@@ -79,12 +89,49 @@ spike_sampler = PeriEventSpikeSampler(
     sample_times=bins,
 )
 
-
 ####################################
 # Now we're ready to sample spikes for each event. We do so using the scikit-learn style `fit_transform()` syntax, passing `events` in as X. The PeriEventSpikeSampler returns a tensor with each event labelled with the timeseries of spiking activity relative to the event.
 
 tensor = spike_sampler.fit_transform(events)
 print(tensor)
+
+#####################################
+# Output::
+#
+#     <xarray.DataArray (event: 5950, sample_times: 24, neuron: 69)>
+#     array([[[0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.],
+#             ...,
+#             [0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.]],
+#
+#            [[0., 0., ..., 0., 0.],
+#             [0., 0., ..., 1., 0.],
+#             ...,
+#             [0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.]],
+#
+#            ...,
+#
+#            [[0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.],
+#             ...,
+#             [0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.]],
+#
+#            [[0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.],
+#             ...,
+#             [0., 0., ..., 0., 0.],
+#             [0., 0., ..., 0., 0.]]])
+#     Coordinates:
+#       * neuron        (neuron) object '102' '110' '111' '112' ... '9' '91' '95' '98'
+#       * sample_times  (sample_times) float64 0.1 0.11 0.12 0.13 ... 0.31 0.32 0.33
+#         time          (event) float64 1.986e+03 1.987e+03 ... 3.473e+03 3.474e+03
+#         end_time      (event) float64 1.987e+03 1.987e+03 ... 3.474e+03 3.474e+03
+#         image_id      (event) int64 77 88 113 22 54 102 35 ... 9 40 59 15 99 88 97
+#         duration      (event) float64 0.2553 0.2527 0.25 ... 0.2504 0.2536 0.2424
+#       * event         (event) int64 0 1 2 3 4 5 6 ... 5944 5945 5946 5947 5948 5949
 
 ####################################
 # We can get the total number of elicited spikes count with the `ResponseReducer` transformer
@@ -98,6 +145,24 @@ reducer = ResponseReducer(func=np.sum)
 
 population_response = reducer.fit_transform(tensor)
 print(population_response)
+
+# Output::
+#
+#     <xarray.DataArray (event: 5950, neuron: 69)>
+#     array([[3., 2., 0., ..., 0., 2., 0.],
+#            [3., 0., 0., ..., 0., 3., 1.],
+#            [1., 1., 0., ..., 0., 1., 1.],
+#            ...,
+#            [0., 0., 0., ..., 0., 0., 0.],
+#            [1., 1., 0., ..., 0., 0., 1.],
+#            [2., 0., 0., ..., 0., 0., 1.]])
+#     Coordinates:
+#       * neuron    (neuron) object '102' '110' '111' '112' ... '9' '91' '95' '98'
+#         time      (event) float64 1.986e+03 1.987e+03 ... 3.473e+03 3.474e+03
+#         end_time  (event) float64 1.987e+03 1.987e+03 ... 3.474e+03 3.474e+03
+#         image_id  (event) int64 77 88 113 22 54 102 35 45 ... 13 9 40 59 15 99 88 97
+#         duration  (event) float64 0.2553 0.2527 0.25 0.2504 ... 0.2504 0.2536 0.2424
+#       * event     (event) int64 0 1 2 3 4 5 6 ... 5943 5944 5945 5946 5947 5948 5949
 
 ####################################
 # Pipelines
@@ -118,11 +183,15 @@ pipeline = Pipeline([
 ####################################
 # We'll use scikit-learn's model_selection module to split our set of events into a training and testing set.
 
+
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(
-    events, events['image_id'],test_size=0.33,
-)
+X = events[['time','duration']]
+y = events['image_id']
+
+chance = 1.0 / len(y.unique())
+
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.33)
 
 
 ####################################
@@ -133,7 +202,12 @@ pipeline.fit(X_train,y_train)
 ####################################
 # Finally we'll test the pipeline's performance on the held out data
 
+# Test decoding held out data
 score = pipeline.score(X_test,y_test)
 
-n_images = len(events['image_id'].unique())
-print(score*n_images)
+print("Decoding accuracy: {:0.2f} (chance: {:0.3f})".format(score,chance))
+
+#############################################
+# Output::
+#
+#     Decoding accuracy: 0.37 (chance: 0.008)
