@@ -6,6 +6,13 @@ neuroglia: more than just brain glue
 .. raw:: html
 
     <div style="clear: both"></div>
+    <div class="container-fluid hidden-xs hidden-sm">
+      <div class="row">
+        <img src="_static/neuroglia_banner_1140x190.png">
+      </div>
+    </div>
+    <br>
+
     <div class="container-fluid">
     <div class="row">
     <div class="col-md-6">
