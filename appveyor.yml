@@ -1,58 +1,64 @@
 # from https://gist.github.com/srikanthbojja/5c4205e37d28e1fb2b5b45e2e907b419
 # also a lot of this is shamelessly stolen from astropy
 environment:
- global:
-   PYTHON: "C:\\conda"
-   PYTHON_ARCH: "64"
-   MINICONDA: "latest"
+  global:
+    PYTHON: "C:\\conda"
+    PYTHON_ARCH: "64"
+    MINICONDA: "latest"
+    TWINE_USERNAME: mochic
+    TWINE_PASSWORD:
+      secure: jRiFQqe2aSk077Eb33CKpw==
 
- matrix:
-  - PYTHON_VERSION: "2.7"
-    CONDA_DEPENDENCIES: "libpython mingw"
-  - PYTHON_VERSION: "3.5"
-    CONDA_DEPENDENCIES: "libpython m2w64-toolchain"
-  - PYTHON_VERSION: "3.6"
-    CONDA_DEPENDENCIES: "libpython m2w64-toolchain"
+  matrix:
+    - PYTHON_VERSION: "2.7"
+      CONDA_DEPENDENCIES: "libpython mingw"
+    - PYTHON_VERSION: "3.5"
+      CONDA_DEPENDENCIES: "libpython m2w64-toolchain"
+    - PYTHON_VERSION: "3.6"
+      CONDA_DEPENDENCIES: "libpython m2w64-toolchain"
 
-version: '{build}'
+version: "{build}"
 platform:
- - x64
+  - x64
 
 install:
-- "git clone git://github.com/astropy/ci-helpers.git"
-- "powershell ci-helpers/appveyor/install-miniconda.ps1"
-- "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-- "conda create -q -n build-environment python=%PYTHON_VERSION% %CONDA_DEPENDENCIES%"
-- "conda create -q -n test-environment python=%PYTHON_VERSION% %CONDA_DEPENDENCIES%"
-- activate build-environment
-- pip install -r requirements.txt
-- pip install -r requirements-dev.txt
-- activate test-environment
-- pip install pytest pytest-cov
-- pip install codecov
+  - "git clone git://github.com/astropy/ci-helpers.git"
+  - "powershell ci-helpers/appveyor/install-miniconda.ps1"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "conda create -q -n build-environment python=%PYTHON_VERSION% %CONDA_DEPENDENCIES%"
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% %CONDA_DEPENDENCIES%"
+  - activate build-environment
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
+  - activate test-environment
+  - pip install pytest pytest-cov
+  - pip install codecov
 
 build_script:
- - activate build-environment
- - python setup.py build_ext --inplace
- - python setup.py bdist_wheel
- - activate test-environment
- - pip install --find-links=dist neuroglia
+  - activate build-environment
+  - python setup.py build_ext --inplace
+  - python setup.py bdist_wheel
+  - activate test-environment
+  - pip install --find-links=dist neuroglia
 
 test_script:
- - activate test-environment
- - pytest --cov=neuroglia
- - codecov
+  - activate test-environment
+  - pytest --cov=neuroglia
+  - codecov
 
 artifacts:
- - path: dist\*.whl
+  - path: dist\*.whl
 
+on_success:
+  # pypi upload, based on: https://github.com/zopefoundation/zope.proxy/blob/master/appveyor.yml
+  - ps: if (($env:APPVEYOR_REPO_TAG -eq $TRUE) -and ($env:APPVEYOR_REPO_BRANCH -eq 'prod')) { pip install twine; twine upload dist/* }
 
 deploy:
   - provider: GitHub
     tag: $(APPVEYOR_REPO_TAG_NAME)
     auth_token:
-     secure: ZaX3irxvB6mFFrMQ8H75lH8V36RJAJgx6QkabtM2XKg3isBqqWayKs70dQrZLhFz
+      secure: ZaX3irxvB6mFFrMQ8H75lH8V36RJAJgx6QkabtM2XKg3isBqqWayKs70dQrZLhFz
     draft: false
     prerelease: true
     on:
-     appveyor_repo_tag: true
+      appveyor_repo_tag: true
