@@ -135,7 +135,7 @@ def read_spikes_from_tar(f):
             if int(cluster)>1:
                 spike = dict(
                     time=float(frame) / SPIKES_HZ,
-                    neuron='{}-{:02d}'.format(shank,int(cluster)),
+                    neuron='s{}:n{:02d}'.format(shank,int(cluster)),
 #                     shank=shank,
                 )
                 spikes.append(spike)
